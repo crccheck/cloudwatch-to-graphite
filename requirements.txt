@@ -3,4 +3,5 @@ PyYAML==3.11
 docopt==0.6.2
 
 # tests
+tox==1.8.0
 mock==1.0.1

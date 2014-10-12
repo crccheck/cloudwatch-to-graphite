@@ -6,6 +6,10 @@
 config.yaml
 
 
+# created during testing
+.tox
+
+
 # created during packaging
 *.egg-info
 build/
