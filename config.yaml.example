@@ -1,0 +1,10 @@
+# sample config.yaml
+metrics:
+- Namespace: "AWS/ELB"
+  MetricName: "RequestCount"
+  # can have multiple statistics too
+  Statistics: "Sum"
+  Unit: "Count"
+  Dimensions:
+    # you can have multiple dimensions, but boto will only return the last
+    LoadBalancerName: "my-load-balancer"

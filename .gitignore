@@ -1,0 +1,6 @@
+*.pyc
+
+
+# Private User Data
+.env
+config.yaml

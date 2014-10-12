@@ -1,0 +1,5 @@
+boto==2.33.0
+PyYAML==3.11
+
+# tests
+mock==1.0.1
