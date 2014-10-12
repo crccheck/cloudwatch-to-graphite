@@ -1,5 +1,6 @@
 boto==2.33.0
 PyYAML==3.11
+docopt==0.6.2
 
 # tests
 mock==1.0.1

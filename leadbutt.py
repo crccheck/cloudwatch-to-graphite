@@ -1,7 +1,16 @@
+"""
+Usage:
+  leadbutt [options]
+
+Options:
+  -h --help                   Show this screen.
+  -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
+"""
 from calendar import timegm
 import datetime
 import sys
 
+from docopt import docopt
 import boto.ec2.cloudwatch
 import yaml
 
@@ -29,9 +38,9 @@ def output_results(results, metric):
         print timegm(result['Timestamp'].timetuple())
 
 
-def main():
-    # TODO add --config-file option, should also accept stdin
-    with open('config.yaml') as fp:
+def main(config_file, **kwargs):
+    # WISHLIST also accept stdin
+    with open(config_file) as fp:
         try:
             config = yaml.load(fp)
         except yaml.YAMLError as e:
@@ -54,4 +63,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    options = docopt(__doc__)
+    config_file = options.pop('--config-file')
+    main(config_file=config_file, **options)
