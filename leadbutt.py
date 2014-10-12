@@ -15,7 +15,7 @@ import boto.ec2.cloudwatch
 import yaml
 
 
-region = 'us-east-1'  # TODO make this configurable
+DEFAULT_REGION = 'us-east-1'
 
 
 def output_results(results, metric):
@@ -55,6 +55,7 @@ def main(config_file, **kwargs):
     # print config
 
     # TODO use auth from config if exists
+    region = config.get('region', DEFAULT_REGION)
     conn = boto.ec2.cloudwatch.connect_to_region(region)
     for metric in config['metrics']:
         results = conn.get_metric_statistics(
