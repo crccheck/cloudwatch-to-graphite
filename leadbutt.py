@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 """
 Usage:
   leadbutt [options]
@@ -8,6 +9,8 @@ Options:
   -p INT --period INT         Period length, in minutes [default: 1]
   -n INT                      Number of data points to get [default: 5]
 """
+from __future__ import unicode_literals
+
 from calendar import timegm
 import datetime
 import sys
@@ -16,6 +19,15 @@ from docopt import docopt
 import boto.ec2.cloudwatch
 import yaml
 
+
+# emulate six.text_type based on https://docs.python.org/3/howto/pyporting.html#str-unicode
+if sys.version_info[0] >= 3:
+    text_type = str
+else:
+    text_type = unicode
+
+
+# configuration
 
 DEFAULT_REGION = 'us-east-1'
 
@@ -26,7 +38,7 @@ def get_config(config_file):
         try:
             return yaml.load(fp)
         except yaml.YAMLError as e:
-            sys.stderr.write(unicode(e))  # XXX python3
+            sys.stderr.write(text_type(e))  # XXX python3
             sys.exit(1)  # TODO document exit codes
 
     if config_file == '-':

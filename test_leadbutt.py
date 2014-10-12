@@ -18,6 +18,14 @@ class get_configTest(unittest.TestCase):
         config = leadbutt.get_config('-')
         self.assertIn('test', config)
 
+    @mock.patch('sys.stdin')
+    def test_config_handles_malformed_yaml(self, mock_stdin):
+        mock_stdin.read.side_effect = ['-\nmalformed yaml', '']
+        mock_stdin.name = 'oops'
+        with self.assertRaises(SystemExit) as e:
+            leadbutt.get_config('-')
+        self.assertEqual(e.exception.code, 1)
+
 
 if __name__ == '__main__':
     unittest.main()
