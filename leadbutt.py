@@ -50,9 +50,12 @@ def output_results(results, metric):
     for result in results:
         # get and then sanitize metric name
         metric_name = (formatter % context).replace('/', '.').lower()
-        print metric_name,
-        print result[metric['Statistics']],
-        print timegm(result['Timestamp'].timetuple())
+        line = '{} {} {}\n'.format(
+            metric_name,
+            result[metric['Statistics']],
+            timegm(result['Timestamp'].timetuple()),
+        )
+        sys.stdout.write(line)
 
 
 def main(config_file, period, count, **kwargs):
