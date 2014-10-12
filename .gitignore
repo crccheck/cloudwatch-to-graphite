@@ -4,3 +4,10 @@
 # Private User Data
 .env
 config.yaml
+
+
+# created during packaging
+*.egg-info
+build/
+dist/
+MANIFEST
