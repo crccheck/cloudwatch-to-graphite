@@ -38,15 +38,23 @@ def output_results(results, metric):
         print timegm(result['Timestamp'].timetuple())
 
 
+def get_config(fp):
+    try:
+        return yaml.load(fp)
+    except yaml.YAMLError as e:
+        sys.stderr.write(unicode(e))  # XXX python3
+        sys.exit(1)  # TODO document exit codes
+
+
 def main(config_file, **kwargs):
-    # WISHLIST also accept stdin
-    with open(config_file) as fp:
-        try:
-            config = yaml.load(fp)
-        except yaml.YAMLError as e:
-            sys.stderr.write(unicode(e))  # XXX python3
-            sys.exit(1)  # TODO document exit codes
+    if config_file == '-':
+        config = get_config(sys.stdin)
+    else:
+        with open(config_file) as fp:
+            config = get_config(fp)
     # print config
+
+    # TODO use auth from config if exists
     conn = boto.ec2.cloudwatch.connect_to_region(region)
     for metric in config['metrics']:
         results = conn.get_metric_statistics(
