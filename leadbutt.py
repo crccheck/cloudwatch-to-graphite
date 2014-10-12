@@ -5,6 +5,7 @@ Usage:
 Options:
   -h --help                   Show this screen.
   -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
+  -n INT                      Number of data points to get  [default: 5]
 """
 from calendar import timegm
 import datetime
@@ -53,7 +54,7 @@ def output_results(results, metric):
         print timegm(result['Timestamp'].timetuple())
 
 
-def main(config_file, **kwargs):
+def main(config_file, count, **kwargs):
     config = get_config(config_file)
 
     # TODO use auth from config if exists
@@ -62,7 +63,7 @@ def main(config_file, **kwargs):
     for metric in config['metrics']:
         results = conn.get_metric_statistics(
             60,  # minimum: 60
-            datetime.datetime.utcnow() - datetime.timedelta(seconds=60 * 5),
+            datetime.datetime.utcnow() - datetime.timedelta(seconds=60 * count),
             datetime.datetime.utcnow(),
             metric['MetricName'],  # RequestCount
             metric['Namespace'],  # AWS/ELB
@@ -76,4 +77,5 @@ def main(config_file, **kwargs):
 if __name__ == '__main__':
     options = docopt(__doc__)
     config_file = options.pop('--config-file')
-    main(config_file=config_file, **options)
+    count = int(options.pop('-n'))
+    main(config_file, count, **options)
