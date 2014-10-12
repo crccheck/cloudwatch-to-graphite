@@ -5,7 +5,8 @@ Usage:
 Options:
   -h --help                   Show this screen.
   -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
-  -n INT                      Number of data points to get  [default: 5]
+  -p INT --period INT         Period length, in minutes [default: 1]
+  -n INT                      Number of data points to get [default: 5]
 """
 from calendar import timegm
 import datetime
@@ -54,17 +55,19 @@ def output_results(results, metric):
         print timegm(result['Timestamp'].timetuple())
 
 
-def main(config_file, count, **kwargs):
+def main(config_file, period, count, **kwargs):
     config = get_config(config_file)
 
     # TODO use auth from config if exists
     region = config.get('region', DEFAULT_REGION)
     conn = boto.ec2.cloudwatch.connect_to_region(region)
     for metric in config['metrics']:
+        end_time = datetime.datetime.utcnow()
+        start_time = end_time - datetime.timedelta(seconds=period * count)
         results = conn.get_metric_statistics(
-            60,  # minimum: 60
-            datetime.datetime.utcnow() - datetime.timedelta(seconds=60 * count),
-            datetime.datetime.utcnow(),
+            period,  # minimum: 60
+            start_time,
+            end_time,
             metric['MetricName'],  # RequestCount
             metric['Namespace'],  # AWS/ELB
             metric['Statistics'],  # Sum
@@ -76,6 +79,8 @@ def main(config_file, count, **kwargs):
 
 if __name__ == '__main__':
     options = docopt(__doc__)
+    # help: http://boto.readthedocs.org/en/latest/ref/cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection.get_metric_statistics
     config_file = options.pop('--config-file')
+    period = int(options.pop('--period')) * 60
     count = int(options.pop('-n'))
-    main(config_file, count, **options)
+    main(config_file, period, count, **options)
