@@ -9,6 +9,26 @@ import yaml
 region = 'us-east-1'  # TODO make this configurable
 
 
+def output_results(results, metric):
+    """
+    Output the results to stdout.
+
+    TODO: add AMPQ support for efficiency
+    """
+    formatter = ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
+        '.%(Statistics)s.%(Unit)s')
+    context = dict(
+        metric,
+        dimension=metric['Dimensions'].values()[0],
+    )
+    for result in results:
+        # get and then sanitize metric name
+        metric_name = (formatter % context).replace('/', '.').lower()
+        print metric_name,
+        print result[metric['Statistics']],
+        print timegm(result['Timestamp'].timetuple())
+
+
 def main():
     # TODO add --config-file option, should also accept stdin
     with open('config.yaml') as fp:
@@ -30,18 +50,7 @@ def main():
             dimensions=metric['Dimensions'],
             unit=metric['Unit'],
         )
-        formatter = ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
-            '.%(Statistics)s.%(Unit)s')
-        context = dict(
-            metric,
-            dimension=metric['Dimensions'].values()[0],
-        )
-        for result in results:
-            # get and then sanitize metric name
-            metric_name = (formatter % context).replace('/', '.').lower()
-            print metric_name,
-            print result[metric['Statistics']],
-            print timegm(result['Timestamp'].timetuple())
+        output_results(results, metric)
 
 
 if __name__ == '__main__':
