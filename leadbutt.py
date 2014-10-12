@@ -18,6 +18,21 @@ import yaml
 DEFAULT_REGION = 'us-east-1'
 
 
+def get_config(config_file):
+    """Get configuration from a file."""
+    def load(fp):
+        try:
+            return yaml.load(fp)
+        except yaml.YAMLError as e:
+            sys.stderr.write(unicode(e))  # XXX python3
+            sys.exit(1)  # TODO document exit codes
+
+    if config_file == '-':
+        return load(sys.stdin)
+    with open(config_file) as fp:
+        return load(fp)
+
+
 def output_results(results, metric):
     """
     Output the results to stdout.
@@ -38,21 +53,8 @@ def output_results(results, metric):
         print timegm(result['Timestamp'].timetuple())
 
 
-def get_config(fp):
-    try:
-        return yaml.load(fp)
-    except yaml.YAMLError as e:
-        sys.stderr.write(unicode(e))  # XXX python3
-        sys.exit(1)  # TODO document exit codes
-
-
 def main(config_file, **kwargs):
-    if config_file == '-':
-        config = get_config(sys.stdin)
-    else:
-        with open(config_file) as fp:
-            config = get_config(fp)
-    # print config
+    config = get_config(config_file)
 
     # TODO use auth from config if exists
     region = config.get('region', DEFAULT_REGION)
