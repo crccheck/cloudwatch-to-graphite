@@ -139,10 +139,8 @@ def main(*args, **kwargs):
     # help: http://boto.readthedocs.org/en/latest/ref/cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection.get_metric_statistics
     config_file = options.pop('--config-file')
     period = options.pop('--period')
-    if period is not None:
-        period = int(period)
     cli_options = {
-        'Period': period,
+        'Period': period if period is None else int(period),
         'Count': int(options.pop('-n')),
     }
     verbose = options.pop('-v')
