@@ -1,3 +1,13 @@
+# -*- coding: UTF-8 -*-
+"""
+Tests for Cloudwatch to Graphite (leadbutt)
+
+WISHLIST: supress chatty stderr and stdout in tests
+"""
+from __future__ import unicode_literals
+
+from subprocess import call
+import os
 import unittest
 
 import mock
@@ -25,6 +35,14 @@ class get_configTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as e:
             leadbutt.get_config('-')
         self.assertEqual(e.exception.code, 1)
+
+
+@unittest.skipUnless('TOX_TEST_ENTRYPOINT' in os.environ,
+    'This is only applicable if leadbutt is installed')
+class mainTest(unittest.TestCase):
+    def test_entry_point(self):
+        # assert this does not raise an exception
+        call(['leadbutt', '--help'])
 
 
 if __name__ == '__main__':
