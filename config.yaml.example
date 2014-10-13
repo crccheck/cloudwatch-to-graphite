@@ -2,7 +2,6 @@
 metrics:
 - Namespace: "AWS/ELB"
   MetricName: "RequestCount"
-  # can have multiple statistics too
   Statistics: "Sum"
   Unit: "Count"
   Dimensions:
@@ -14,4 +13,16 @@ metrics:
     # default one for reference. You can use the same values you see above. The
     # dimension name, "my-load-balancer", appears in the `dimension` variable.
     # It uses Python %-style formatting.
-    Formatter: 'cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(Statistics)s.%(Unit)s'
+    Formatter: 'cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'
+- Namespace: "AWS/EC2"
+  MetricName: "CPUUtilization"
+  # You can have multiple statistics too
+  Statistics:
+  - "Maximum"
+  - "Average"
+  Unit: "Percent"
+  Dimensions:
+    InstanceId: "i-r0b0t"
+  Options:
+    # EC2 defaults to 5 minute reports
+    Period: 5

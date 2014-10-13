@@ -40,6 +40,13 @@ You can even generate configs on the fly and send it in like::
 .. _configuration instructions: http://boto.readthedocs.org/en/latest/boto_config_tut.html
 
 
+config.yaml
+-----------
+
+What metrics to pull is in a YAML configuration file. See the example
+config.yaml.example for an idea of what you can do.
+
+
 Developing
 ----------
 

@@ -6,7 +6,7 @@ Usage:
 Options:
   -h --help                   Show this screen.
   -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
-  -p INT --period INT         Period length, in minutes [default: 1]
+  -p INT --period INT         Period length, in minutes (default: 1)
   -n INT                      Number of data points to get [default: 5]
   -v                          Verbose
 """
@@ -89,6 +89,12 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
     }
     conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
     for metric in config['metrics']:
+        local_options = metric.get('Options', {})
+        # UGH this option checking/fallback code is so ugly
+        if period is None:
+            # If user did not specify period, check config, then use default
+            period = local_options.get('Period', 1)
+        period = period * 60
         end_time = datetime.datetime.utcnow()
         start_time = end_time - datetime.timedelta(seconds=period * count)
         results = conn.get_metric_statistics(
@@ -108,7 +114,9 @@ def main(*args, **kwargs):
     options = docopt(__doc__)
     # help: http://boto.readthedocs.org/en/latest/ref/cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection.get_metric_statistics
     config_file = options.pop('--config-file')
-    period = int(options.pop('--period')) * 60
+    period = options.pop('--period')
+    if period is not None:
+        period = int(period) * 60
     count = int(options.pop('-n'))
     verbose = options.pop('-v')
     leadbutt(config_file, period, count, verbose, **options)
