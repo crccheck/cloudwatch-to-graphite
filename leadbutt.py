@@ -57,11 +57,11 @@ def output_results(results, metric):
     """
     options = metric.get('Options', {})
     formatter = options.get('Formatter', DEFAULT_FORMAT)
-    context = dict(
-        metric,
-        # statistic=metric['Statistics'][0]
-        dimension=list(metric['Dimensions'].values())[0],
-    )
+    context = metric.copy()
+    try:
+        context['dimension'] = list(metric['Dimensions'].values())[0]
+    except AttributeError:
+        context['dimension'] = ''
     for result in results:
         # get and then sanitize metric name
         metric_name = (formatter % context).replace('/', '.').lower()
