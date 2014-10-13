@@ -93,12 +93,14 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
         # UGH this option checking/fallback code is so ugly
         if period is None:
             # If user did not specify period, check config, then use default
-            period = local_options.get('Period', 1)
-        period = period * 60
+            periods = local_options.get('Period', 1)
+        else:
+            periods = period
+        period_seconds = periods * 60
         end_time = datetime.datetime.utcnow()
-        start_time = end_time - datetime.timedelta(seconds=period * count)
+        start_time = end_time - datetime.timedelta(seconds=period_seconds * count)
         results = conn.get_metric_statistics(
-            period,  # minimum: 60
+            period_seconds,  # minimum: 60
             start_time,
             end_time,
             metric['MetricName'],  # RequestCount, CPUUtilization
@@ -107,6 +109,7 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
             dimensions=metric['Dimensions'],
             unit=metric['Unit'],  # Count, Percent
         )
+        # sys.stderr.write('{} {}\n'.format(count, len(results)))
         output_results(results, metric)
 
 
