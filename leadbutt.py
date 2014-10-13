@@ -7,7 +7,7 @@ Options:
   -h --help                   Show this screen.
   -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
   -p INT --period INT         Period length, in minutes (default: 1)
-  -n INT                      Number of data points to get [default: 5]
+  -n INT                      Number of data points to try to get (default: 5)
   -v                          Verbose
 """
 from __future__ import unicode_literals
@@ -139,12 +139,13 @@ def main(*args, **kwargs):
     # help: http://boto.readthedocs.org/en/latest/ref/cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection.get_metric_statistics
     config_file = options.pop('--config-file')
     period = options.pop('--period')
-    cli_options = {
-        'Count': int(options.pop('-n')),
-    }
-    if period is not None:
-        cli_options['Period'] = int(period),
+    count = options.pop('-n')
     verbose = options.pop('-v')
+    cli_options = {}
+    if period is not None:
+        cli_options['Period'] = int(period)
+    if count is not None:
+        cli_options['Count'] = int(count)
     leadbutt(config_file, cli_options, verbose, **options)
 
 
