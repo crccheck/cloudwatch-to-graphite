@@ -140,9 +140,10 @@ def main(*args, **kwargs):
     config_file = options.pop('--config-file')
     period = options.pop('--period')
     cli_options = {
-        'Period': period if period is None else int(period),
         'Count': int(options.pop('-n')),
     }
+    if period is not None:
+        cli_options['Period'] = int(period),
     verbose = options.pop('-v')
     leadbutt(config_file, cli_options, verbose, **options)
 
