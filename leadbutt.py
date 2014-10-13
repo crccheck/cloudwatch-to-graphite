@@ -32,7 +32,7 @@ else:
 
 DEFAULT_REGION = 'us-east-1'
 DEFAULT_FORMAT = ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
-    '.%(Statistics)s.%(Unit)s')
+    '.%(statistic)s.%(Unit)s')
 
 
 def get_config(config_file):
@@ -64,14 +64,19 @@ def output_results(results, metric):
     except AttributeError:
         context['dimension'] = ''
     for result in results:
-        # get and then sanitize metric name
-        metric_name = (formatter % context).replace('/', '.').lower()
-        line = '{} {} {}\n'.format(
-            metric_name,
-            result[metric['Statistics']],
-            timegm(result['Timestamp'].timetuple()),
-        )
-        sys.stdout.write(line)
+        stat_keys = metric['Statistics']
+        if not isinstance(stat_keys, list):
+            stat_keys = [stat_keys]
+        for statistic in stat_keys:
+            context['statistic'] = statistic
+            # get and then sanitize metric name
+            metric_name = (formatter % context).replace('/', '.').lower()
+            line = '{} {} {}\n'.format(
+                metric_name,
+                result[statistic],
+                timegm(result['Timestamp'].timetuple()),
+            )
+            sys.stdout.write(line)
 
 
 def leadbutt(config_file, period, count, verbose=False, **kwargs):

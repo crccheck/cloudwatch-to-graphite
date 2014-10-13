@@ -84,6 +84,25 @@ class output_results(unittest.TestCase):
         self.assertEqual(name, 'tmnt.x')
         self.assertEqual(value, '1337.0')
 
+    @mock.patch('sys.stdout')
+    def test_multiple_statistics_get_multiple_lines(self, mock_sysout):
+        mock_results = [{
+            'Timestamp': datetime.datetime.utcnow(),
+            'Maximum': 9001.0,
+            'Average': 1337.0,
+        }]
+        metric = {
+            'Namespace': 'AWS/Foo',
+            'MetricName': 'RequestCount',
+            'Statistics': ['Maximum', 'Average'],
+            'Unit': 'Count',
+            'Dimensions': {'Krang': 'X'},
+        }
+        leadbutt.output_results(mock_results, metric)
+
+        self.assertEqual(
+            mock_sysout.write.call_count, len(metric['Statistics']))
+
 
 @unittest.skipUnless('TOX_TEST_ENTRYPOINT' in os.environ,
     'This is only applicable if leadbutt is installed')
