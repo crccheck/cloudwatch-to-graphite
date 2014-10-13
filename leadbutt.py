@@ -30,6 +30,8 @@ else:
 # configuration
 
 DEFAULT_REGION = 'us-east-1'
+DEFAULT_FORMAT = ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
+    '.%(Statistics)s.%(Unit)s')
 
 
 def get_config(config_file):
@@ -53,11 +55,12 @@ def output_results(results, metric):
 
     TODO: add AMPQ support for efficiency
     """
-    formatter = ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
-        '.%(Statistics)s.%(Unit)s')
+    options = metric.get('Options', {})
+    formatter = options.get('Formatter', DEFAULT_FORMAT)
     context = dict(
         metric,
-        dimension=metric['Dimensions'].values()[0],
+        # statistic=metric['Statistics'][0]
+        dimension=list(metric['Dimensions'].values())[0],
     )
     for result in results:
         # get and then sanitize metric name

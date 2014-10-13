@@ -7,6 +7,7 @@ WISHLIST: supress chatty stderr and stdout in tests
 from __future__ import unicode_literals
 
 from subprocess import call
+import datetime
 import os
 import unittest
 
@@ -35,6 +36,51 @@ class get_configTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as e:
             leadbutt.get_config('-')
         self.assertEqual(e.exception.code, 1)
+
+
+class output_results(unittest.TestCase):
+    @mock.patch('sys.stdout')
+    def test_default_formatter_used(self, mock_sysout):
+        mock_results = [{
+            'Timestamp': datetime.datetime.utcnow(),
+            'Sum': 1337.0,
+        }]
+        metric = {
+            'Namespace': 'AWS/Foo',
+            'MetricName': 'RequestCount',
+            'Statistics': 'Sum',
+            'Unit': 'Count',
+            'Dimensions': {'Krang': 'X'},
+        }
+        leadbutt.output_results(mock_results, metric)
+        self.assertTrue(mock_sysout.write.called)
+        out = mock_sysout.write.call_args[0][0]
+        name, value, timestamp = out.split()
+        # assert default formatter was used
+        self.assertEqual(name, 'cloudwatch.aws.foo.x.requestcount.sum.count')
+        self.assertEqual(value, '1337.0')
+
+    @mock.patch('sys.stdout')
+    def test_custom_formatter_used(self, mock_sysout):
+        mock_results = [{
+            'Timestamp': datetime.datetime.utcnow(),
+            'Sum': 1337.0,
+        }]
+        metric = {
+            'Namespace': 'AWS/Foo',
+            'MetricName': 'RequestCount',
+            'Statistics': 'Sum',
+            'Unit': 'Count',
+            'Dimensions': {'Krang': 'X'},
+            'Options': {'Formatter': 'tmnt.%(dimension)s'}
+        }
+        leadbutt.output_results(mock_results, metric)
+        self.assertTrue(mock_sysout.write.called)
+        out = mock_sysout.write.call_args[0][0]
+        name, value, timestamp = out.split()
+        # assert custom formatter was used
+        self.assertEqual(name, 'tmnt.x')
+        self.assertEqual(value, '1337.0')
 
 
 @unittest.skipUnless('TOX_TEST_ENTRYPOINT' in os.environ,

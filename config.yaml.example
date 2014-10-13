@@ -8,3 +8,10 @@ metrics:
   Dimensions:
     # you can have multiple dimensions, but boto will only return the last
     LoadBalancerName: "my-load-balancer"
+  # Optional custom options
+  Options:
+    # This is the template used to generate graphite metric names. Here's the
+    # default one for reference. You can use the same values you see above. The
+    # dimension name, "my-load-balancer", appears in the `dimension` variable.
+    # It uses Python %-style formatting.
+    Formatter: 'cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(Statistics)s.%(Unit)s'
