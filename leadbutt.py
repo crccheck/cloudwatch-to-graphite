@@ -105,6 +105,7 @@ def output_results(results, metric, options):
 
 def leadbutt(config_file, cli_options, verbose=False, **kwargs):
     config = get_config(config_file)
+    config_options = config.get('Options')
 
     # TODO use auth from config if exists
     region = config.get('region', DEFAULT_REGION)
@@ -114,7 +115,7 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
     conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
     for metric in config['metrics']:
         options = get_options(
-            config.get('Options'), metric.get('Options'), cli_options)
+            config_options, metric.get('Options'), cli_options)
         period_local = options['Period'] * 60
         count_local = options['Count']
         end_time = datetime.datetime.utcnow()
