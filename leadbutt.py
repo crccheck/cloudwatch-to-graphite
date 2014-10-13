@@ -31,8 +31,13 @@ else:
 # configuration
 
 DEFAULT_REGION = 'us-east-1'
-DEFAULT_FORMAT = ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
-    '.%(statistic)s.%(Unit)s')
+
+DEFAULT_OPTIONS = {
+    'Period': 1,  # 1 minute
+    'Count': 5,  # 5 periods
+    'Formatter': ('cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s'
+        '.%(statistic)s.%(Unit)s')
+}
 
 
 def get_config(config_file):
@@ -50,15 +55,34 @@ def get_config(config_file):
         return load(fp)
 
 
-def output_results(results, metric):
+def get_options(config_options, local_options, cli_options):
+    """
+    Figure out what options to use based on the four places it can come from.
+
+    Order of precedence:
+    * cli_options      specified by the user at the command line
+    * local_options    specified in the config file for the metric
+    * config_options   specified in the config file at the base
+    * DEFAULT_OPTIONS  hard coded defaults
+    """
+    options = DEFAULT_OPTIONS.copy()
+    if config_options is not None:
+        options.update(config_options)
+    if local_options is not None:
+        options.update(local_options)
+    if cli_options is not None:
+        options.update(cli_options)
+    return options
+
+
+def output_results(results, metric, options):
     """
     Output the results to stdout.
 
     TODO: add AMPQ support for efficiency
     """
-    options = metric.get('Options', {})
-    formatter = options.get('Formatter', DEFAULT_FORMAT)
-    context = metric.copy()
+    formatter = options['Formatter']
+    context = metric.copy()  # XXX might need to sanitize this
     try:
         context['dimension'] = list(metric['Dimensions'].values())[0]
     except AttributeError:
@@ -81,6 +105,10 @@ def output_results(results, metric):
 
 def leadbutt(config_file, period, count, verbose=False, **kwargs):
     config = get_config(config_file)
+    cli_options = {
+        'Period': period,
+        'Count': count,
+    }
 
     # TODO use auth from config if exists
     region = config.get('region', DEFAULT_REGION)
@@ -89,18 +117,14 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
     }
     conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
     for metric in config['metrics']:
-        local_options = metric.get('Options', {})
-        # UGH this option checking/fallback code is so ugly
-        if period is None:
-            # If user did not specify period, check config, then use default
-            periods = local_options.get('Period', 1)
-        else:
-            periods = period
-        period_seconds = periods * 60
+        options = get_options(config.get('Options'), metric.get('Options'), cli_options)
+        period_local = options['Period'] * 60
+        count_local = options['Count']
         end_time = datetime.datetime.utcnow()
-        start_time = end_time - datetime.timedelta(seconds=period_seconds * count)
+        start_time = end_time - datetime.timedelta(
+            seconds=period_local * count_local)
         results = conn.get_metric_statistics(
-            period_seconds,  # minimum: 60
+            period_local,  # minimum: 60
             start_time,
             end_time,
             metric['MetricName'],  # RequestCount, CPUUtilization
@@ -110,7 +134,7 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
             unit=metric['Unit'],  # Count, Percent
         )
         # sys.stderr.write('{} {}\n'.format(count, len(results)))
-        output_results(results, metric)
+        output_results(results, metric, options)
 
 
 def main(*args, **kwargs):

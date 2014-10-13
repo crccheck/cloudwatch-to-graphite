@@ -40,7 +40,40 @@ class get_configTest(unittest.TestCase):
         self.assertTrue(mock_stderr.write.called)
 
 
-class output_results(unittest.TestCase):
+class get_optionsTest(unittest.TestCase):
+    def test_get_options_returns_right_option(self):
+        # only have the defaults
+        options = leadbutt.get_options(None, None, None)
+        self.assertEqual(options['Period'], 1)
+        self.assertEqual(options['Count'], 5)
+
+        # config options were specified
+        config_options = {
+            'Period': 2,
+        }
+        options = leadbutt.get_options(config_options, None, None)
+        self.assertEqual(options['Period'], 2)
+        self.assertEqual(options['Count'], 5)
+
+        # local_options were specified
+        local_options = {
+            'Period': 3,
+        }
+        options = leadbutt.get_options(config_options, local_options, None)
+        self.assertEqual(options['Period'], 3)
+        self.assertEqual(options['Count'], 5)
+
+        # cli_options were specified
+        cli_options = {
+            'Period': 4,
+            'Count': 10,
+        }
+        options = leadbutt.get_options(config_options, local_options, cli_options)
+        self.assertEqual(options['Period'], 4)
+        self.assertEqual(options['Count'], 10)
+
+
+class output_resultsTest(unittest.TestCase):
     @mock.patch('sys.stdout')
     def test_default_formatter_used(self, mock_sysout):
         mock_results = [{
@@ -54,7 +87,8 @@ class output_results(unittest.TestCase):
             'Unit': 'Count',
             'Dimensions': {'Krang': 'X'},
         }
-        leadbutt.output_results(mock_results, metric)
+        options = leadbutt.get_options(None, metric.get('Options'), None)
+        leadbutt.output_results(mock_results, metric, options)
         self.assertTrue(mock_sysout.write.called)
         out = mock_sysout.write.call_args[0][0]
         name, value, timestamp = out.split()
@@ -76,7 +110,8 @@ class output_results(unittest.TestCase):
             'Dimensions': {'Krang': 'X'},
             'Options': {'Formatter': 'tmnt.%(dimension)s'}
         }
-        leadbutt.output_results(mock_results, metric)
+        options = leadbutt.get_options(None, metric.get('Options'), None)
+        leadbutt.output_results(mock_results, metric, options)
         self.assertTrue(mock_sysout.write.called)
         out = mock_sysout.write.call_args[0][0]
         name, value, timestamp = out.split()
@@ -98,7 +133,8 @@ class output_results(unittest.TestCase):
             'Unit': 'Count',
             'Dimensions': {'Krang': 'X'},
         }
-        leadbutt.output_results(mock_results, metric)
+        options = leadbutt.get_options(None, metric.get('Options'), None)
+        leadbutt.output_results(mock_results, metric, options)
 
         self.assertEqual(
             mock_sysout.write.call_count, len(metric['Statistics']))
