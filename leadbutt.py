@@ -70,7 +70,7 @@ def output_results(results, metric):
         sys.stdout.write(line)
 
 
-def main(config_file, period, count, **kwargs):
+def leadbutt(config_file, period, count, **kwargs):
     config = get_config(config_file)
 
     # TODO use auth from config if exists
@@ -92,10 +92,14 @@ def main(config_file, period, count, **kwargs):
         output_results(results, metric)
 
 
-if __name__ == '__main__':
+def main(*args, **kwargs):
     options = docopt(__doc__)
     # help: http://boto.readthedocs.org/en/latest/ref/cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection.get_metric_statistics
     config_file = options.pop('--config-file')
     period = int(options.pop('--period')) * 60
     count = int(options.pop('-n'))
-    main(config_file, period, count, **options)
+    leadbutt(config_file, period, count, **options)
+
+
+if __name__ == '__main__':
+    main()

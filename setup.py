@@ -11,7 +11,7 @@ setup(
     entry_points={
         'console_scripts': [
             'leadbutt = leadbutt:main',
-        ]
+        ],
     },
     install_requires=[
         'boto',
