@@ -103,12 +103,8 @@ def output_results(results, metric, options):
             sys.stdout.write(line)
 
 
-def leadbutt(config_file, period, count, verbose=False, **kwargs):
+def leadbutt(config_file, cli_options, verbose=False, **kwargs):
     config = get_config(config_file)
-    cli_options = {
-        'Period': period,
-        'Count': count,
-    }
 
     # TODO use auth from config if exists
     region = config.get('region', DEFAULT_REGION)
@@ -117,7 +113,8 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
     }
     conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
     for metric in config['metrics']:
-        options = get_options(config.get('Options'), metric.get('Options'), cli_options)
+        options = get_options(
+            config.get('Options'), metric.get('Options'), cli_options)
         period_local = options['Period'] * 60
         count_local = options['Count']
         end_time = datetime.datetime.utcnow()
@@ -133,7 +130,7 @@ def leadbutt(config_file, period, count, verbose=False, **kwargs):
             dimensions=metric['Dimensions'],
             unit=metric['Unit'],  # Count, Percent
         )
-        # sys.stderr.write('{} {}\n'.format(count, len(results)))
+        # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
         output_results(results, metric, options)
 
 
@@ -143,10 +140,13 @@ def main(*args, **kwargs):
     config_file = options.pop('--config-file')
     period = options.pop('--period')
     if period is not None:
-        period = int(period) * 60
-    count = int(options.pop('-n'))
+        period = int(period)
+    cli_options = {
+        'Period': period,
+        'Count': int(options.pop('-n')),
+    }
     verbose = options.pop('-v')
-    leadbutt(config_file, period, count, verbose, **options)
+    leadbutt(config_file, cli_options, verbose, **options)
 
 
 if __name__ == '__main__':
