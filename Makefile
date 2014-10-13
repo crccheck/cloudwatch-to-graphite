@@ -12,6 +12,8 @@ test:
 	python test_leadbutt.py
 
 
+# If this doesn't work, make sure you have wheels installed:
+#     pip install wheel
 .PHONY: build
 build:
 	python setup.py sdist bdist_wheel upload

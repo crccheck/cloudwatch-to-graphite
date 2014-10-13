@@ -3,6 +3,7 @@ from setuptools import setup
 
 setup(
     name='cloudwatch-to-graphite',
+    description='Helper for pushing AWS CloudWatch metrics to Graphite',
     version='0.0.0',
     author='Chris Chang',
     author_email='c@crccheck.com',
@@ -19,7 +20,6 @@ setup(
         'docopt',
     ],
     license='Apache License, Version 2.0',
-    description='A Django app for adding object tools for models in the admin',
     long_description=open('README.rst').read(),
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -29,5 +29,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
     ],
 )
