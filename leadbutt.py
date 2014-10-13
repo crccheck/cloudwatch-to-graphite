@@ -8,6 +8,7 @@ Options:
   -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
   -p INT --period INT         Period length, in minutes [default: 1]
   -n INT                      Number of data points to get [default: 5]
+  -v                          Verbose
 """
 from __future__ import unicode_literals
 
@@ -73,12 +74,15 @@ def output_results(results, metric):
         sys.stdout.write(line)
 
 
-def leadbutt(config_file, period, count, **kwargs):
+def leadbutt(config_file, period, count, verbose=False, **kwargs):
     config = get_config(config_file)
 
     # TODO use auth from config if exists
     region = config.get('region', DEFAULT_REGION)
-    conn = boto.ec2.cloudwatch.connect_to_region(region)
+    connect_args = {
+        'debug': 2 if verbose else 0,
+    }
+    conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
     for metric in config['metrics']:
         end_time = datetime.datetime.utcnow()
         start_time = end_time - datetime.timedelta(seconds=period * count)
@@ -86,11 +90,11 @@ def leadbutt(config_file, period, count, **kwargs):
             period,  # minimum: 60
             start_time,
             end_time,
-            metric['MetricName'],  # RequestCount
-            metric['Namespace'],  # AWS/ELB
-            metric['Statistics'],  # Sum
+            metric['MetricName'],  # RequestCount, CPUUtilization
+            metric['Namespace'],  # AWS/ELB, AWS/EC2
+            metric['Statistics'],  # Sum, Maximum
             dimensions=metric['Dimensions'],
-            unit=metric['Unit'],
+            unit=metric['Unit'],  # Count, Percent
         )
         output_results(results, metric)
 
@@ -101,7 +105,8 @@ def main(*args, **kwargs):
     config_file = options.pop('--config-file')
     period = int(options.pop('--period')) * 60
     count = int(options.pop('-n'))
-    leadbutt(config_file, period, count, **options)
+    verbose = options.pop('-v')
+    leadbutt(config_file, period, count, verbose, **options)
 
 
 if __name__ == '__main__':
