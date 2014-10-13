@@ -26,3 +26,6 @@ metrics:
   Options:
     # EC2 defaults to 5 minute reports
     Period: 5
+# Optional, set defaults for all metrics in this file
+Options:
+  Count: 10

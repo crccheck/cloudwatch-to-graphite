@@ -46,7 +46,7 @@ def get_config(config_file):
         try:
             return yaml.load(fp)
         except yaml.YAMLError as e:
-            sys.stderr.write(text_type(e))  # XXX python3
+            sys.stderr.write(text_type(e))
             sys.exit(1)  # TODO document exit codes
 
     if config_file == '-':
