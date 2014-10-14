@@ -66,6 +66,22 @@ through awk::
       awk -v namespace="$HOSTEDGRAPHITE_APIKEY" '{print namespace"."$0}' | \
       nc -uw0 my-graphite-provider.xxx 2003
 
+Customizing Your Graphite Metric Names
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Set the ``Formatter`` option to set the template used to generate Graphite
+metric names. I wasn't sure what should be default, so I copied
+`cloudwatch2graphite`_'s. Here's what it looks like::
+
+    cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s
+
+TitleCased variables come directly from the YAML configuration, while lowercase
+variables are derived:
+
+* **statistic** -- the current statistic since ``Statistics`` can be a list
+* **dimension** -- the dimension value, e.g. "i-r0b0t" or "my-load-balancer"
+
+The format string is Python's `%-style <https://docs.python.org/2/library/stdtypes.html#string-formatting>`_.
 
 config.yaml
 -----------

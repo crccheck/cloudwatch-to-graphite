@@ -19,10 +19,7 @@ Metrics:
     InstanceId: "i-r0b0t"
   # OPTIONAL: custom options just for this metric
   Options:
-    # This is the template used to generate graphite metric names. Here's the
-    # default one for reference. You can use the same values you see above. The
-    # dimension name, "my-load-balancer", appears in the `dimension` variable.
-    # It uses Python %-style formatting.
+    # Set this to customize your Graphite metric names
     Formatter: 'cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'
     # EC2 defaults to 5 minute reports
     Period: 5
