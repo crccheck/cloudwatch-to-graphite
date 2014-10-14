@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='cloudwatch-to-graphite',
     description='Helper for pushing AWS CloudWatch metrics to Graphite',
-    version='0.1.0',
+    version='0.2.0',
     author='Chris Chang',
     author_email='c@crccheck.com',
     url='https://github.com/crccheck/cloudwatch-to-graphite',
@@ -22,7 +22,7 @@ setup(
     license='Apache License, Version 2.0',
     long_description=open('README.rst').read(),
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
