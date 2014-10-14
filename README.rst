@@ -41,7 +41,8 @@ custom configuration file::
 
     leadbutt --config-file=production.yaml -n 20
 
-You can even generate configs on the fly and send it in like::
+You can even generate configs on the fly and send them in via stdin by setting
+the config file to '-'::
 
     generate_config_from_inventory | leadbutt --config-file=-
 
