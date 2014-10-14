@@ -1,5 +1,5 @@
 # sample config.yaml
-metrics:
+Metrics:
 - Namespace: "AWS/ELB"
   MetricName: "RequestCount"
   Statistics: "Sum"

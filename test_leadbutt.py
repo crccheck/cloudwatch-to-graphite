@@ -19,7 +19,7 @@ import leadbutt
 class get_configTest(unittest.TestCase):
     def test_example_config_loads(self):
         config = leadbutt.get_config('config.yaml.example')
-        self.assertIn('metrics', config)
+        self.assertIn('Metrics', config)
 
     @mock.patch('sys.stdin')
     def test_config_can_be_stdin(self, mock_stdin):
@@ -145,7 +145,7 @@ class leadbuttTest(unittest.TestCase):
     @mock.patch('leadbutt.get_config')
     def test_can_get_auth_from_config(self, mock_get_config, mock_connect):
         mock_get_config.return_value = {
-            'metrics': [],
+            'Metrics': [],
             'Auth': {
                 'aws_access_key_id': 'foo',
                 'aws_secret_access_key': 'bar',
