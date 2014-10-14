@@ -140,6 +140,24 @@ class output_resultsTest(unittest.TestCase):
             mock_sysout.write.call_count, len(metric['Statistics']))
 
 
+class leadbuttTest(unittest.TestCase):
+    @mock.patch('boto.ec2.cloudwatch.connect_to_region')
+    @mock.patch('leadbutt.get_config')
+    def test_can_get_auth_from_config(self, mock_get_config, mock_connect):
+        mock_get_config.return_value = {
+            'metrics': [],
+            'Auth': {
+                'aws_access_key_id': 'foo',
+                'aws_secret_access_key': 'bar',
+            }
+        }
+        leadbutt.leadbutt('dummy_config_file', 'dummy_cli_options')
+        self.assertTrue(mock_connect.called)
+        args, kwargs = mock_connect.call_args
+        self.assertEqual(kwargs['aws_access_key_id'], 'foo')
+        self.assertEqual(kwargs['aws_secret_access_key'], 'bar')
+
+
 @unittest.skipUnless('TOX_TEST_ENTRYPOINT' in os.environ,
     'This is only applicable if leadbutt is installed')
 class mainTest(unittest.TestCase):
