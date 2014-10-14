@@ -106,12 +106,16 @@ def output_results(results, metric, options):
 def leadbutt(config_file, cli_options, verbose=False, **kwargs):
     config = get_config(config_file)
     config_options = config.get('Options')
+    auth_options = config.get('Auth', {})
 
-    # TODO use auth from config if exists
-    region = config.get('region', DEFAULT_REGION)
+    region = auth_options.get('region', DEFAULT_REGION)
     connect_args = {
         'debug': 2 if verbose else 0,
     }
+    if 'aws_access_key_id' in auth_options:
+        connect_args['aws_access_key_id'] = auth_options['aws_access_key_id']
+    if 'aws_secret_access_key' in auth_options:
+        connect_args['aws_secret_access_key'] = auth_options['aws_secret_access_key']
     conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
     for metric in config['metrics']:
         options = get_options(
