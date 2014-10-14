@@ -19,31 +19,57 @@ Install using pip::
 Usage
 -----
 
+Configuring ``boto``
+~~~~~~~~~~~~~~~~~~~~
+
 Cloudwatch-to-Graphite uses `boto`_, so make sure to follow its `configuration
 instructions`_. The easiest way to do this is to set up the
 ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables.
 
-Set up a config.yaml. You can copy the included config.yaml.example. If your
-graphite server is at graphite.local, you can send metrics like::
+.. _configuration instructions: http://boto.readthedocs.org/en/latest/boto_config_tut.html
 
-    leadbutt | nc -q0 graphite.local 2003
+Configuration Files
+~~~~~~~~~~~~~~~~~~~
+
+If you have a simple setup, the easiest way to get started is to set up a
+config.yaml. You can copy the included config.yaml.example. Then just run::
+
+    leadbutt
 
 If you have several configs you want to switch between, you can specify a
-custom configuration file and send extra data with::
+custom configuration file::
 
-    leadbutt --config-file=production.yaml -n 20 | nc -q0 graphite.local 2003
+    leadbutt --config-file=production.yaml -n 20
 
 You can even generate configs on the fly and send it in like::
 
-    generate_config_from_inventory | leadbutt --config-file=- | nc -q0 graphite.local 2003
+    generate_config_from_inventory | leadbutt --config-file=-
 
-.. _configuration instructions: http://boto.readthedocs.org/en/latest/boto_config_tut.html
+Sending Data to Graphite
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your graphite server is at graphite.local, you can send metrics by chaining
+with netcat::
+
+    leadbutt | nc -q0 graphite.local 2003
+
+Or if you want to use UDP::
+
+    leadbutt | nc -uw0 graphite.local 2003
+
+If you need to namespace your metrics for a hosted Graphite provider, you could
+provide a custom formatter, but the easiest way is to just run the output
+through awk::
+
+    leadbutt | \
+      awk -v namespace="$HOSTEDGRAPHITE_APIKEY" '{print namespace"."$0}' | \
+      nc -uw0 my-graphite-provider.xxx 2003
 
 
 config.yaml
 -----------
 
-What metrics to pull is in a YAML configuration file. See the example
+What metrics are pulled is in a YAML configuration file. See the example
 config.yaml.example for an idea of what you can do.
 
 
