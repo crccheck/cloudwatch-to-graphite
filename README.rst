@@ -63,6 +63,13 @@ Verifying tests run over all supported Python versions::
     tox
 
 
+Useful References
+-----------------
+
+* `CloudWatch Reference <http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/CW_Support_For_AWS.html>`_
+* `boto CloudWatch docs <http://boto.readthedocs.org/en/latest/ref/cloudwatch.html>`_
+
+
 Prior Art
 ---------
 
