@@ -117,7 +117,7 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
     if 'aws_secret_access_key' in auth_options:
         connect_args['aws_secret_access_key'] = auth_options['aws_secret_access_key']
     conn = boto.ec2.cloudwatch.connect_to_region(region, **connect_args)
-    for metric in config['metrics']:
+    for metric in config['Metrics']:
         options = get_options(
             config_options, metric.get('Options'), cli_options)
         period_local = options['Period'] * 60

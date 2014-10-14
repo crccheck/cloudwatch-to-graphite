@@ -1,19 +1,13 @@
-# sample config.yaml
-metrics:
+# Sample config.yaml
+Metrics:
 - Namespace: "AWS/ELB"
   MetricName: "RequestCount"
   Statistics: "Sum"
   Unit: "Count"
   Dimensions:
-    # you can have multiple dimensions, but boto will only return the last
+    # You can have multiple dimensions, but boto will only return the last one
     LoadBalancerName: "my-load-balancer"
-  # Optional custom options
-  Options:
-    # This is the template used to generate graphite metric names. Here's the
-    # default one for reference. You can use the same values you see above. The
-    # dimension name, "my-load-balancer", appears in the `dimension` variable.
-    # It uses Python %-style formatting.
-    Formatter: 'cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'
+# You can list additional metrics in one file. Just be careful about rate limits.
 - Namespace: "AWS/EC2"
   MetricName: "CPUUtilization"
   # You can have multiple statistics too
@@ -23,9 +17,12 @@ metrics:
   Unit: "Percent"
   Dimensions:
     InstanceId: "i-r0b0t"
+  # OPTIONAL: custom options just for this metric
   Options:
+    # Set this to customize your Graphite metric names
+    Formatter: 'cloudwatch.%(Namespace)s.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'
     # EC2 defaults to 5 minute reports
     Period: 5
-# Optional, set defaults for all metrics in this file
+# OPTIONAL: set defaults for all metrics in this file
 Options:
   Count: 10
