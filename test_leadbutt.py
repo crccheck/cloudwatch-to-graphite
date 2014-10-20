@@ -39,6 +39,13 @@ class get_configTest(unittest.TestCase):
         self.assertEqual(e.exception.code, 1)
         self.assertTrue(mock_stderr.write.called)
 
+    @mock.patch('sys.stderr')
+    def test_config_handles_missing_file(self, mock_stderr):
+        with self.assertRaises(SystemExit) as e:
+            leadbutt.get_config('whatever_the_default_config_is')
+        self.assertEqual(e.exception.code, 2)
+        self.assertTrue(mock_stderr.write.called)
+
 
 class get_optionsTest(unittest.TestCase):
     def test_get_options_returns_right_option(self):

@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 
 from calendar import timegm
 import datetime
+import os.path
 import sys
 
 from docopt import docopt
@@ -51,6 +52,10 @@ def get_config(config_file):
 
     if config_file == '-':
         return load(sys.stdin)
+    if not os.path.exists(config_file):
+        sys.stderr.write('ERROR: Must either run next to config.yaml or'
+            ' specify a config file.')
+        sys.exit(2)
     with open(config_file) as fp:
         return load(fp)
 
