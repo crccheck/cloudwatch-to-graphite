@@ -15,6 +15,7 @@ import sys
 import boto.ec2
 import boto.ec2.elb
 import boto.rds
+import jinja2
 
 
 def get_property_func(key):
@@ -60,19 +61,19 @@ def get_options(input_args):
 def list_ec2(filter_by_kwargs):
     conn = boto.ec2.connect_to_region('us-east-1')  # XXX magic constant
     instances = conn.get_only_instances()
-    print lookup(instances, filter_by=filter_by_kwargs)
+    return lookup(instances, filter_by=filter_by_kwargs)
 
 
 def list_elb(filter_by_kwargs):
     conn = boto.ec2.elb.connect_to_region('us-east-1')  # XXX magic constant
     instances = conn.get_all_load_balancers()
-    print lookup(instances, filter_by=filter_by_kwargs)
+    return lookup(instances, filter_by=filter_by_kwargs)
 
 
 def list_rds(filter_by_kwargs):
     conn = boto.rds.connect_to_region('us-east-1')
     instances = conn.get_all_dbinstances()
-    print lookup(instances, filter_by=filter_by_kwargs)
+    return lookup(instances, filter_by=filter_by_kwargs)
 
 
 def main():
@@ -80,14 +81,27 @@ def main():
     template = options[0]
     namespace = options[1].lower()
     filters = get_options(options[2:])
+
+    # get the template first so this can fail before making a network request
+    loader = jinja2.FileSystemLoader('.')
+    jinja2_env = jinja2.Environment(loader=loader)
+    template = jinja2_env.get_template(template)
+
     # should I be using ARNs?
     if namespace in ('ec2', 'aws/ec2'):
-        list_ec2(filters)
-    if namespace in ('elb', 'aws/elb'):
-        list_elb(filters)
-    if namespace in ('rds', 'aws/rds'):
-        list_rds(filters)
-    print options
+        resources = list_ec2(filters)
+    elif namespace in ('elb', 'aws/elb'):
+        resources = list_elb(filters)
+    elif namespace in ('rds', 'aws/rds'):
+        resources(filters)
+    else:
+        # TODO
+        sys.exit(1)
+
+    print template.render({
+        'filters': filters,
+        'resources': resources,
+    })
 
 
 if __name__ == '__main__':
