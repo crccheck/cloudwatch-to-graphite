@@ -1,0 +1,20 @@
+{# This is a Jinja2 comment
+  To use this template, you'd run something like:
+  python plumbum.py config.yaml.j2.example ec2
+ #}
+# Sample config.yaml
+Metrics:
+{% for instance in resources %}
+- Namespace: "AWS/EC2"
+  MetricName: "CPUUtilization"
+  Statistics:
+  - "Maximum"
+  - "Average"
+  Unit: "Percent"
+  Dimensions:
+    InstanceId: "{{ instance.id }}"
+  Options:
+    {# I'm assuming my tag names are safe to use as metric names here #}
+    Formatter: 'cloudwatch.%(Namespace)s.{{ instance.tags['Name'] }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+    Period: 5
+{% endfor %}
