@@ -5,7 +5,10 @@ Usage:
 
 Examples:
 
-  plumbum elb.html.j2 elb
+  plumbum elb.yaml.j2 elb
+  plumbum ec2.yaml.j2 ec2 environment=production
+
+Outputs to stdout.
 
 """
 from __future__ import unicode_literals
@@ -77,6 +80,9 @@ def list_rds(filter_by_kwargs):
 
 
 def main():
+    if len(sys.argv) < 3:
+        print __doc__
+        sys.exit()
     options = sys.argv[1:]
     template = options[0]
     namespace = options[1].lower()
