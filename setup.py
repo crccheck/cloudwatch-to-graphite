@@ -8,16 +8,18 @@ setup(
     author='Chris Chang',
     author_email='c@crccheck.com',
     url='https://github.com/crccheck/cloudwatch-to-graphite',
-    py_modules=['leadbutt'],
+    py_modules=['leadbutt', 'plumbum'],
     entry_points={
         'console_scripts': [
             'leadbutt = leadbutt:main',
+            'plumbum = plumbum:main',
         ],
     },
     install_requires=[
         'boto',
         'PyYAML',
         'docopt',
+        'Jinja2',
     ],
     license='Apache License, Version 2.0',
     long_description=open('README.rst').read(),
