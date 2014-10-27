@@ -24,3 +24,9 @@ test:
 .PHONY: build
 build:
 	python setup.py sdist bdist_wheel upload
+
+
+# makes it easier to test setup.py's entry points
+reinstall:
+	pip uninstall cloudwatch-to-graphite --yes
+	pip install .
