@@ -15,10 +15,6 @@ Install using pip::
 
     pip install cloudwatch-to-graphite
 
-
-Usage
------
-
 Configuring ``boto``
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -27,6 +23,10 @@ instructions`_. The easiest way to do this is to set up the
 ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables.
 
 .. _configuration instructions: http://boto.readthedocs.org/en/latest/boto_config_tut.html
+
+
+Usage
+-----
 
 Configuration Files
 ~~~~~~~~~~~~~~~~~~~
