@@ -10,6 +10,7 @@ clean:
 
 test:
 	python test_leadbutt.py
+	python test_plumbum.py
 
 
 # Release Instructions:

@@ -24,6 +24,10 @@ import boto.rds
 import jinja2
 
 
+# DEFAULT_NAMESPACE = 'ec2'  # TODO
+DEFAULT_REGION = 'us-east-1'
+
+
 def get_property_func(key):
     """
     Get the accessor function for an instance to look for `key`.
@@ -64,6 +68,20 @@ def get_options(input_args):
     return filter_by_kwargs
 
 
+def get_cli_options(options):
+    template = options[0]
+    namespace = options[1].lower()
+    region = ''
+    if len(options) < 3 or '=' in options[2]:
+        filters = get_options(options[2:])
+    else:
+        region = options[2]
+        filters = get_options(options[3:])
+    region = region or boto.config.get('Boto', 'ec2_region_name', 'us-east-1')
+    extra = []
+    return template, namespace, region, filters, extra
+
+
 def list_ec2(region, filter_by_kwargs):
     conn = boto.ec2.connect_to_region(region)
     instances = conn.get_only_instances()
@@ -86,15 +104,8 @@ def main():
     if len(sys.argv) < 3:
         print __doc__
         sys.exit()
-    options = sys.argv[1:]
-    template = options[0]
-    namespace = options[1].lower()
-    region = ''
-    if '=' in options[2]:
-        filters = get_options(options[2:])
-    else:
-        region = options[2]
-        filters = get_options(options[3:])
+
+    template, namespace, region, filters, __ = get_cli_options(sys.argv[1:])
 
     # get the template first so this can fail before making a network request
     loader = jinja2.FileSystemLoader('.')
@@ -102,7 +113,6 @@ def main():
     template = jinja2_env.get_template(template)
 
     # insure a valid region is set
-    region = region or boto.config.get('Boto', 'ec2_region_name', 'us-east-1')
     if not region in [r.name for r in boto.ec2.regions()]:
         raise ValueError("Invalid region:{0}".format(region))
 
@@ -120,7 +130,7 @@ def main():
     print template.render({
         'filters': filters,
         'resources': resources,
-        'region': region,       #Use for Auth config section if needed
+        'region': region,       # Use for Auth config section if needed
     })
 
 
