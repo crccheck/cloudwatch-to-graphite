@@ -6,7 +6,9 @@ Usage:
 Examples:
 
   plumbum elb.yaml.j2 elb
+  plumbum elb.yaml.j2 elb us-west-2
   plumbum ec2.yaml.j2 ec2 environment=production
+  plumbum ec2.yaml.j2 ec2 us-west-2 environment=production
 
 Outputs to stdout.
 
@@ -15,6 +17,7 @@ from __future__ import unicode_literals
 
 import sys
 
+import boto
 import boto.ec2
 import boto.ec2.elb
 import boto.rds
@@ -61,20 +64,20 @@ def get_options(input_args):
     return filter_by_kwargs
 
 
-def list_ec2(filter_by_kwargs):
-    conn = boto.ec2.connect_to_region('us-east-1')  # XXX magic constant
+def list_ec2(region, filter_by_kwargs):
+    conn = boto.ec2.connect_to_region(region)
     instances = conn.get_only_instances()
     return lookup(instances, filter_by=filter_by_kwargs)
 
 
-def list_elb(filter_by_kwargs):
-    conn = boto.ec2.elb.connect_to_region('us-east-1')  # XXX magic constant
+def list_elb(region, filter_by_kwargs):
+    conn = boto.ec2.elb.connect_to_region(region)
     instances = conn.get_all_load_balancers()
     return lookup(instances, filter_by=filter_by_kwargs)
 
 
-def list_rds(filter_by_kwargs):
-    conn = boto.rds.connect_to_region('us-east-1')
+def list_rds(region, filter_by_kwargs):
+    conn = boto.rds.connect_to_region(region)
     instances = conn.get_all_dbinstances()
     return lookup(instances, filter_by=filter_by_kwargs)
 
@@ -86,20 +89,30 @@ def main():
     options = sys.argv[1:]
     template = options[0]
     namespace = options[1].lower()
-    filters = get_options(options[2:])
+    region = ''
+    if '=' in options[2]:
+        filters = get_options(options[2:])
+    else:
+        region = options[2]
+        filters = get_options(options[3:])
 
     # get the template first so this can fail before making a network request
     loader = jinja2.FileSystemLoader('.')
     jinja2_env = jinja2.Environment(loader=loader)
     template = jinja2_env.get_template(template)
 
+    # insure a valid region is set
+    region = region or boto.config.get('Boto', 'ec2_region_name', 'us-east-1')
+    if not region in [r.name for r in boto.ec2.regions()]:
+        raise ValueError("Invalid region:{0}".format(region))
+
     # should I be using ARNs?
     if namespace in ('ec2', 'aws/ec2'):
-        resources = list_ec2(filters)
+        resources = list_ec2(region, filters)
     elif namespace in ('elb', 'aws/elb'):
-        resources = list_elb(filters)
+        resources = list_elb(region, filters)
     elif namespace in ('rds', 'aws/rds'):
-        resources(filters)
+        resources = list_rds(region, filters)
     else:
         # TODO
         sys.exit(1)
@@ -107,6 +120,7 @@ def main():
     print template.render({
         'filters': filters,
         'resources': resources,
+        'region': region,       #Use for Auth config section if needed
     })
 
 
