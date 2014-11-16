@@ -1,4 +1,8 @@
 # Sample config.yaml
+
+# If connecting to a different region other than default, set region
+Auth:
+  region: "us-west-2"
 Metrics:
 - Namespace: "AWS/ELB"
   MetricName: "RequestCount"

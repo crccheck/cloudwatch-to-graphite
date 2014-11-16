@@ -1,5 +1,7 @@
 *.pyc
 
+*.swp
+
 
 # Private User Data
 .env
