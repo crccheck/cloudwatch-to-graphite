@@ -56,30 +56,32 @@ def lookup(instances, filter_by=None):
     return instances
 
 
-def get_options(input_args):
-    filter_by_kwargs = {}
-    for arg in input_args:
-        if arg.startswith('-'):
-            # ignore options
-            continue
-        if '=' in arg:
-            key, value = arg.split('=', 2)
-            filter_by_kwargs[key] = value
-    return filter_by_kwargs
-
-
 def get_cli_options(options):
+    # template always has to be index 0
     template = options[0]
+    # namespace always has to be index 1
     namespace = options[1].lower()
+    # region might be index 2
     region = ''
     if len(options) < 3 or '=' in options[2]:
-        filters = get_options(options[2:])
+        next_idx = 2
     else:
         region = options[2]
-        filters = get_options(options[3:])
+        next_idx = 3
     region = region or boto.config.get('Boto', 'ec2_region_name', 'us-east-1')
-    extra = []
-    return template, namespace, region, filters, extra
+
+    filter_by = {}
+    extras = []
+    for arg in options[next_idx:]:
+        if arg.startswith('-'):
+            extras.append(arg)
+        elif '=' in arg:
+            key, value = arg.split('=', 2)
+            filter_by[key] = value
+        else:
+            extras.append(arg)
+
+    return template, namespace, region, filter_by, extras
 
 
 def list_ec2(region, filter_by_kwargs):

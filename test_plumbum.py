@@ -35,6 +35,24 @@ class get_cli_optionsTest(unittest.TestCase):
         self.assertFalse(len(filter_by))
         self.assertFalse(len(extras))
 
+    def test_filters_and_extras_found(self):
+        argv = ['foo.j2', 'ec2', 'bar=mars', '--whee', 'xyzzy']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(templ, 'foo.j2')
+        self.assertEqual(ns, 'ec2')
+        self.assertEqual(region, plumbum.DEFAULT_REGION)
+        self.assertEqual(len(filter_by), 1)
+        self.assertEqual(len(extras), 2)
+
+    def test_filters_and_extras_with_region_specified(self):
+        argv = ['foo.j2', 'ec2', 'avengers-west-2', 'bar=mars', '--whee', 'xyzzy']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(templ, 'foo.j2')
+        self.assertEqual(ns, 'ec2')
+        self.assertEqual(region, 'avengers-west-2')
+        self.assertEqual(len(filter_by), 1)
+        self.assertEqual(len(extras), 2)
+
 
 if __name__ == '__main__':
     unittest.main()
