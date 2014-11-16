@@ -35,6 +35,20 @@ class get_cli_optionsTest(unittest.TestCase):
         self.assertFalse(len(filter_by))
         self.assertFalse(len(extras))
 
+        # more regions
+        argv = ['foo.j2', 'ec2', 'us-east-1']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(region, 'us-east-1')
+        argv = ['foo.j2', 'ec2', 'cn-north-1']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(region, 'cn-north-1')
+        argv = ['foo.j2', 'ec2', 'ap-northeast-1']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(region, 'ap-northeast-1')
+        argv = ['foo.j2', 'ec2', 'us-gov-west-1']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(region, 'us-gov-west-1')
+
     def test_filters_and_extras_found(self):
         argv = ['foo.j2', 'ec2', 'bar=mars', '--whee', 'xyzzy']
         templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)

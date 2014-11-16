@@ -15,6 +15,7 @@ Outputs to stdout.
 """
 from __future__ import unicode_literals
 
+import re
 import sys
 
 import boto
@@ -61,13 +62,14 @@ def get_cli_options(options):
     template = options[0]
     # namespace always has to be index 1
     namespace = options[1].lower()
+    next_idx = 2
     # region might be index 2
     region = ''
-    if len(options) < 3 or '=' in options[2]:
-        next_idx = 2
-    else:
+    if len(options) > 2 and re.match(r'^\w+\-[\w\-]+\-\d+$', options[2]):
         region = options[2]
-        next_idx = 3
+        next_idx += 1
+    else:
+        next_idx = 2
     region = region or boto.config.get('Boto', 'ec2_region_name', 'us-east-1')
 
     filter_by = {}
