@@ -124,6 +124,13 @@ def list_rds(region, filter_by_kwargs):
     return lookup(instances, filter_by=filter_by_kwargs)
 
 
+list_resources = {
+    'ec2': list_ec2,
+    'elb': list_elb,
+    'rds': list_rds,
+}
+
+
 def main():
     if len(sys.argv) < 3:
         print(__doc__)
@@ -141,14 +148,11 @@ def main():
         raise ValueError("Invalid region:{0}".format(region))
 
     # should I be using ARNs?
-    if namespace == 'ec2':
-        resources = list_ec2(region, filters)
-    elif namespace == 'elb':
-        resources = list_elb(region, filters)
-    elif namespace == 'rds':
-        resources = list_rds(region, filters)
-    else:
-        # TODO
+    try:
+        resources = list_resources[namespace](region, filters)
+    except KeyError:
+        print('ERROR: AWS namespace "{}" not supported or does not exist'
+            .format(namespace))
         sys.exit(1)
 
     print(template.render({
