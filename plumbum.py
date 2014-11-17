@@ -71,7 +71,8 @@ def lookup(instances, filter_by=None):
     return instances
 
 
-def get_cli_options(options):
+def interpret_options(options):
+    """Parse all the command line options."""
     # template always has to be index 0
     template = options[0]
     # namespace always has to be index 1. Support 'ec2' (human friendly) and
@@ -136,7 +137,7 @@ def main():
         print(__doc__)
         sys.exit()
 
-    template, namespace, region, filters, __ = get_cli_options(sys.argv[1:])
+    template, namespace, region, filters, __ = interpret_options(sys.argv[1:])
 
     # get the template first so this can fail before making a network request
     loader = jinja2.FileSystemLoader('.')
