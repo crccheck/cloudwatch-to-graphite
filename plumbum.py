@@ -125,7 +125,7 @@ def list_rds(region, filter_by_kwargs):
 
 def main():
     if len(sys.argv) < 3:
-        print __doc__
+        print(__doc__)
         sys.exit()
 
     template, namespace, region, filters, __ = get_cli_options(sys.argv[1:])
@@ -150,11 +150,11 @@ def main():
         # TODO
         sys.exit(1)
 
-    print template.render({
+    print(template.render({
         'filters': filters,
         'region': region,       # Use for Auth config section if needed
         'resources': resources,
-    })
+    }))
 
 
 if __name__ == '__main__':

@@ -9,8 +9,7 @@ clean:
 
 
 test:
-	python test_leadbutt.py
-	python test_plumbum.py
+	python -m unittest discover
 
 
 # Release Instructions:
