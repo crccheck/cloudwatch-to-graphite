@@ -1,0 +1,19 @@
+Metrics:
+{%- for elb in resources %}
+- Namespace: "AWS/ELB"
+  MetricName: "RequestCount"
+  Statistics: "Sum"
+  Unit: "Count"
+  Dimensions:
+    LoadBalancerName: "{{ elb.name }}"
+- Namespace: "AWS/ELB"
+  MetricName: "HTTPCode_Backend_5XX"
+  Statistics: "Sum"
+  Unit: "Count"
+  Dimensions:
+    LoadBalancerName: "{{ elb.name }}"
+  Options:
+    Period: 5
+{%- endfor %}
+Auth:
+  region: "{{ region }}""
