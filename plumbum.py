@@ -74,8 +74,9 @@ def lookup(instances, filter_by=None):
 def get_cli_options(options):
     # template always has to be index 0
     template = options[0]
-    # namespace always has to be index 1
-    namespace = options[1].lower()
+    # namespace always has to be index 1. Support 'ec2' (human friendly) and
+    # 'AWS/EC2' (how CloudWatch natively calls these things)
+    namespace = options[1].rsplit('/', 2)[-1].lower()
     next_idx = 2
     # region might be index 2
     region = ''
@@ -140,11 +141,11 @@ def main():
         raise ValueError("Invalid region:{0}".format(region))
 
     # should I be using ARNs?
-    if namespace in ('ec2', 'aws/ec2'):
+    if namespace == 'ec2':
         resources = list_ec2(region, filters)
-    elif namespace in ('elb', 'aws/elb'):
+    elif namespace == 'elb':
         resources = list_elb(region, filters)
-    elif namespace in ('rds', 'aws/rds'):
+    elif namespace == 'rds':
         resources = list_rds(region, filters)
     else:
         # TODO

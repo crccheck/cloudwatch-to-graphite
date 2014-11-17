@@ -26,6 +26,12 @@ class get_cli_optionsTest(unittest.TestCase):
         self.assertFalse(len(filter_by))
         self.assertFalse(len(extras))
 
+    def test_namespace_can_use_cloudwatch_syntax(self):
+        argv = ['foo.j2', 'AWS/EC2']
+        templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
+        self.assertEqual(templ, 'foo.j2')
+        self.assertEqual(ns, 'ec2')
+
     def test_region_can_be_specified(self):
         argv = ['foo.j2', 'ec2', 'avengers-west-2']
         templ, ns, region, filter_by, extras = plumbum.get_cli_options(argv)
