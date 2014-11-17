@@ -28,5 +28,5 @@ build:
 
 # makes it easier to test setup.py's entry points
 reinstall:
-	pip uninstall cloudwatch-to-graphite --yes
+	-pip uninstall cloudwatch-to-graphite --yes
 	pip install .
