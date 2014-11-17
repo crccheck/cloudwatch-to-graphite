@@ -9,7 +9,7 @@ clean:
 
 
 test:
-	python test_leadbutt.py
+	python -m unittest discover
 
 
 # Release Instructions:
@@ -28,5 +28,5 @@ build:
 
 # makes it easier to test setup.py's entry points
 reinstall:
-	pip uninstall cloudwatch-to-graphite --yes
+	-pip uninstall cloudwatch-to-graphite --yes
 	pip install .
