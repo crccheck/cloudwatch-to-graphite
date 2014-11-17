@@ -1,7 +1,13 @@
 # -*- coding: UTF-8 -*-
 """
 Usage:
-  plumbum <template> <namespace> [options]...
+  plumbum <template> <namespace> [region] [options]...
+
+Options:
+  template   path to the jinja2 template
+  namespace  AWS namespace. Currently supports: elb, ec2, rds
+  region     AWS region [default: us-east-1]
+  options    key value combinations, they can be tags or any other property
 
 Examples:
 
@@ -12,6 +18,14 @@ Examples:
 
 Outputs to stdout.
 
+About Templates:
+
+Templates are used to generate config.yml files based on running resources.
+They're written in jinja2, and have these variables available:
+
+  filters    A dictionary of the filters that were passed in
+  region     The region the resource is located in
+  resources  A list of the resources as boto objects
 """
 from __future__ import unicode_literals
 
@@ -52,7 +66,7 @@ def filter_key(filter_args):
 
 
 def lookup(instances, filter_by=None):
-    if filter_by:
+    if filter_by is not None:
         return filter(filter_key(filter_by), instances)
     return instances
 
@@ -76,29 +90,34 @@ def get_cli_options(options):
     extras = []
     for arg in options[next_idx:]:
         if arg.startswith('-'):
+            # throw these away for now
             extras.append(arg)
         elif '=' in arg:
             key, value = arg.split('=', 2)
             filter_by[key] = value
         else:
+            # throw these away for now
             extras.append(arg)
 
     return template, namespace, region, filter_by, extras
 
 
 def list_ec2(region, filter_by_kwargs):
+    """List running ec2 instances."""
     conn = boto.ec2.connect_to_region(region)
     instances = conn.get_only_instances()
     return lookup(instances, filter_by=filter_by_kwargs)
 
 
 def list_elb(region, filter_by_kwargs):
+    """List all load balancers."""
     conn = boto.ec2.elb.connect_to_region(region)
     instances = conn.get_all_load_balancers()
     return lookup(instances, filter_by=filter_by_kwargs)
 
 
 def list_rds(region, filter_by_kwargs):
+    """List all RDS thingys."""
     conn = boto.rds.connect_to_region(region)
     instances = conn.get_all_dbinstances()
     return lookup(instances, filter_by=filter_by_kwargs)
@@ -133,8 +152,8 @@ def main():
 
     print template.render({
         'filters': filters,
-        'resources': resources,
         'region': region,       # Use for Auth config section if needed
+        'resources': resources,
     })
 
 
