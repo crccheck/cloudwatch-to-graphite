@@ -17,12 +17,11 @@ test:
 # 1. bump version number
 # 2. `git commit "bump version to v<version>"`
 # 3. `git tag v<version>`
-# 4. `make build`
+# 4. `make release`
 #
 # If this doesn't work, make sure you have wheels installed:
 #     pip install wheel
-.PHONY: build
-build:
+release:
 	python setup.py sdist bdist_wheel upload
 
 
