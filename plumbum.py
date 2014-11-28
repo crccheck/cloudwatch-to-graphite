@@ -36,6 +36,7 @@ import boto
 import boto.ec2
 import boto.ec2.elb
 import boto.rds
+import boto.elasticache
 import jinja2
 
 
@@ -125,10 +126,23 @@ def list_rds(region, filter_by_kwargs):
     return lookup(instances, filter_by=filter_by_kwargs)
 
 
+def list_elasticache(region, filter_by_kwargs):
+    """List all ElastiCache Clusters."""
+    clusters = []
+    conn = boto.elasticache.connect_to_region(region)
+    req = conn.describe_cache_clusters()
+    data = req["DescribeCacheClustersResponse"]["DescribeCacheClustersResult"]["CacheClusters"]
+    for cluster in data:
+        CacheClusterId = cluster["CacheClusterId"]
+        clusters.append(CacheClusterId)
+    return clusters
+
+
 list_resources = {
     'ec2': list_ec2,
     'elb': list_elb,
     'rds': list_rds,
+    'elasticache': list_elasticache
 }
 
 
@@ -153,13 +167,13 @@ def main():
         resources = list_resources[namespace](region, filters)
     except KeyError:
         print('ERROR: AWS namespace "{}" not supported or does not exist'
-            .format(namespace))
+              .format(namespace))
         sys.exit(1)
 
     print(template.render({
         'filters': filters,
         'region': region,       # Use for Auth config section if needed
-        'resources': resources,
+        'resources': resources
     }))
 
 
