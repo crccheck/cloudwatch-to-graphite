@@ -1,0 +1,43 @@
+{#- config template for elasticache -#}
+
+{%- set metrics = {'BytesUsedForCache': {'stat': 'Average', 'unit': 'Bytes'},
+                   'CPUUtilization': {'stat': 'Average', 'unit': 'Percent'},
+                   'CacheHits': {'stat': 'Sum', 'unit': 'Count'},
+                   'CacheMisses': {'stat': 'Sum', 'unit': 'Count'},
+                   'CurrConnections': {'stat': 'Sum', 'unit': 'Count'},
+                   'CurrItems': {'stat': 'Sum', 'unit': 'Count'},
+                   'Evictions': {'stat': 'Sum', 'unit': 'Count'},
+                   'FreeableMemory': {'stat': 'Average', 'unit': 'Bytes'},
+                   'GetTypeCmds': {'stat': 'Sum', 'unit': 'Count'},
+                   'HashBasedCmds': {'stat': 'Average', 'unit': 'Count'},
+                   'KeyBasedCmds': {'stat': 'Average', 'unit': 'Count'},
+                   'NetworkBytesIn': {'stat': 'Sum', 'unit': 'Bytes'},
+                   'NetworkBytesOut': {'stat': 'Sum', 'unit': 'Bytes'},
+                   'NewConnections': {'stat': 'Sum', 'unit': 'Count'},
+                   'Reclaimed': {'stat': 'Sum', 'unit': 'Count'},
+                   'ReplicationLag': {'stat': 'Average', 'unit': 'Seconds'},
+                   'SetTypeCmds': {'stat': 'Sum', 'unit': 'Count'},
+                   'StringBasedCmds': {'stat': 'Sum', 'unit': 'Count'},
+                   'SwapUsage': {'stat': 'Average', 'unit': 'Bytes'}
+                   } -%}
+
+Auth:
+  region: "{{ region }}"
+
+Metrics:
+{%- for cluster in resources %}
+    {%- for metric in metrics %}
+- Namespace: "AWS/ElastiCache"
+  MetricName: "{{ metric }}"
+  Statistics:
+  - "{{ metrics[metric]['stat'] }}"
+  Unit: "{{ metrics[metric]['unit'] }}"
+  Dimensions:
+    CacheClusterId: "{{ cluster }}"
+    CacheNodeId: "0001"
+  Options:
+    Formatter: 'cloudwatch.%(Namespace)s.{{ cluster }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+    Period: 5
+  {%- endfor %}
+{%- endfor %}
+
