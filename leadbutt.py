@@ -9,6 +9,7 @@ Options:
   -p INT --period INT         Period length, in minutes (default: 1)
   -n INT                      Number of data points to try to get (default: 5)
   -v                          Verbose
+  --version                   Show version.
 """
 from __future__ import unicode_literals
 
@@ -27,6 +28,8 @@ if sys.version_info[0] >= 3:
     text_type = str
 else:
     text_type = unicode
+
+__version__ = '0.4.0'
 
 
 # configuration
@@ -145,7 +148,7 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
 
 
 def main(*args, **kwargs):
-    options = docopt(__doc__)
+    options = docopt(__doc__, version=__version__)
     # help: http://boto.readthedocs.org/en/latest/ref/cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection.get_metric_statistics
     config_file = options.pop('--config-file')
     period = options.pop('--period')
