@@ -5,7 +5,7 @@ Usage:
 
 Options:
   template   path to the jinja2 template
-  namespace  AWS namespace. Currently supports: elb, ec2, rds
+  namespace  AWS namespace. Currently supports: elasticache, elb, ec2, rds
   region     AWS region [default: us-east-1]
   options    key value combinations, they can be tags or any other property
 
@@ -142,7 +142,7 @@ list_resources = {
     'ec2': list_ec2,
     'elb': list_elb,
     'rds': list_rds,
-    'elasticache': list_elasticache
+    'elasticache': list_elasticache,
 }
 
 
@@ -173,7 +173,7 @@ def main():
     print(template.render({
         'filters': filters,
         'region': region,       # Use for Auth config section if needed
-        'resources': resources
+        'resources': resources,
     }))
 
 
