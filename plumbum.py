@@ -40,6 +40,8 @@ import boto.elasticache
 import jinja2
 
 
+__version__ = '0.4.0'
+
 # DEFAULT_NAMESPACE = 'ec2'  # TODO
 DEFAULT_REGION = 'us-east-1'
 
@@ -147,6 +149,9 @@ list_resources = {
 
 
 def main():
+    if '--version' in sys.argv:
+        print(__version__)
+        sys.exit()
     if len(sys.argv) < 3:
         print(__doc__)
         sys.exit()

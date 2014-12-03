@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
 Tests for Cloudwatch to Graphite (leadbutt)
-
-WISHLIST: supress chatty stderr and stdout in tests
 """
 from __future__ import unicode_literals
 
