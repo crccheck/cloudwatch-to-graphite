@@ -40,7 +40,7 @@ import boto.elasticache
 import jinja2
 
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 # DEFAULT_NAMESPACE = 'ec2'  # TODO
 DEFAULT_REGION = 'us-east-1'
