@@ -4,3 +4,4 @@ env:
   - TOX_ENV=py34
 install: "pip install tox"
 script: tox -e $TOX_ENV
+sudo: false
