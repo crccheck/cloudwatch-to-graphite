@@ -5,7 +5,7 @@ Usage:
 
 Options:
   template   path to the jinja2 template
-  namespace  AWS namespace. Currently supports: elasticache, elb, ec2, rds
+  namespace  AWS namespace. Currently supports: elasticache, elb, ec2, rds, asg, sqs
   region     AWS region [default: us-east-1]
   options    key value combinations, they can be tags or any other property
 
@@ -37,6 +37,8 @@ import boto.ec2
 import boto.ec2.elb
 import boto.rds
 import boto.elasticache
+import boto.ec2.autoscale
+import boto.sqs
 import jinja2
 
 
@@ -140,11 +142,27 @@ def list_elasticache(region, filter_by_kwargs):
     return clusters
 
 
+def list_autoscaling_group(region, filter_by_kwargs):
+    """List all Auto Scaling Groups."""
+    conn = boto.ec2.autoscale.connect_to_region(region)
+    groups = conn.get_all_groups()
+    return lookup(groups, filter_by=filter_by_kwargs)
+
+
+def list_sqs(region, filter_by_kwargs):
+    """List all SQS Queues."""
+    conn = boto.sqs.connect_to_region(region)
+    queues = conn.get_all_queues()
+    return lookup(queues, filter_by=filter_by_kwargs)
+
+
 list_resources = {
     'ec2': list_ec2,
     'elb': list_elb,
     'rds': list_rds,
     'elasticache': list_elasticache,
+    'asg': list_autoscaling_group,
+    'sqs': list_sqs,
 }
 
 

@@ -1,0 +1,19 @@
+# Sample config.yaml
+#
+Auth:
+  region: "{{ region }}"
+Metrics:
+{% for asg in resources %}
+- Namespace: "AWS/EC2"
+  MetricName: "CPUUtilization"
+  Statistics:
+  - "Maximum"
+  - "Average"
+  Unit: "Percent"
+  Dimensions:
+    AutoScalingGroupName: {{ asg.name }}
+{% endfor %}
+Options:
+  Count: 3
+  Period: 5
+  Formatter: 'cloudwatch.aws.asg.{{ region }}.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'

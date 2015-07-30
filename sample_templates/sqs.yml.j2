@@ -1,0 +1,18 @@
+# Sample config.yaml
+#
+Auth:
+  region: "{{ region }}"
+Metrics:
+{%- for sqs in resources %}
+- Namespace: "AWS/SQS"
+  MetricName: "NumberOfMessagesReceived"
+  Statistics:
+  - "Sum"
+  Unit: "Count"
+  Dimensions:
+    QueueName: {{ sqs.name }}
+{%- endfor %}
+Options:
+  Count: 5
+  Period: 5
+  Formatter: 'cloudwatch.%(Namespace)s.{{ region }}.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'
