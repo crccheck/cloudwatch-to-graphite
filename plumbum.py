@@ -41,7 +41,7 @@ import boto.ec2.autoscale
 import boto.kinesis
 import boto.sqs
 import jinja2
-
+import os.path
 
 __version__ = '0.5.0'
 
@@ -192,9 +192,10 @@ def main():
     template, namespace, region, filters, __ = interpret_options(sys.argv[1:])
 
     # get the template first so this can fail before making a network request
-    loader = jinja2.FileSystemLoader('.')
+    fs_path = os.path.abspath(os.path.dirname(template))
+    loader = jinja2.FileSystemLoader(fs_path)
     jinja2_env = jinja2.Environment(loader=loader)
-    template = jinja2_env.get_template(template)
+    template = jinja2_env.get_template(os.path.basename(template))
 
     # insure a valid region is set
     if not region in [r.name for r in boto.ec2.regions()]:
