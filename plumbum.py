@@ -38,9 +38,10 @@ import boto.ec2.elb
 import boto.rds
 import boto.elasticache
 import boto.ec2.autoscale
+import boto.kinesis
 import boto.sqs
 import jinja2
-
+import os.path
 
 __version__ = '0.6.0'
 
@@ -156,6 +157,19 @@ def list_sqs(region, filter_by_kwargs):
     return lookup(queues, filter_by=filter_by_kwargs)
 
 
+def list_kinesis_applications(region, filter_by_kwargs):
+    """List all the kinesis applications along with the shards for each stream"""
+    conn = boto.kinesis.connect_to_region(region)
+    streams = conn.list_streams()['StreamNames']
+    kinesis_streams = {}
+    for stream_name in streams:
+        shard_ids = []
+        shards = conn.describe_stream(stream_name)['StreamDescription']['Shards']
+        for shard in shards:
+            shard_ids.append(shard['ShardId'])
+        kinesis_streams[stream_name] = shard_ids
+    return kinesis_streams
+
 list_resources = {
     'ec2': list_ec2,
     'elb': list_elb,
@@ -163,6 +177,7 @@ list_resources = {
     'elasticache': list_elasticache,
     'asg': list_autoscaling_group,
     'sqs': list_sqs,
+    'kinesisapp': list_kinesis_applications,
 }
 
 
@@ -177,9 +192,10 @@ def main():
     template, namespace, region, filters, __ = interpret_options(sys.argv[1:])
 
     # get the template first so this can fail before making a network request
-    loader = jinja2.FileSystemLoader('.')
+    fs_path = os.path.abspath(os.path.dirname(template))
+    loader = jinja2.FileSystemLoader(fs_path)
     jinja2_env = jinja2.Environment(loader=loader)
-    template = jinja2_env.get_template(template)
+    template = jinja2_env.get_template(os.path.basename(template))
 
     # insure a valid region is set
     if not region in [r.name for r in boto.ec2.regions()]:
