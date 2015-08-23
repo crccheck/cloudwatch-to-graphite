@@ -46,6 +46,10 @@ the config file to '-'::
 
     generate_config_from_inventory | leadbutt --config-file=-
 
+There's a helper to generate configuration files called ``plumbum``. For now,
+you'll have to read the source of ``plumbum.py`` for usage.
+
+
 Sending Data to Graphite
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
