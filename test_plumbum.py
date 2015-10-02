@@ -71,6 +71,12 @@ class get_cli_optionsTest(unittest.TestCase):
         self.assertEqual(len(filter_by), 1)
         self.assertEqual(len(extras), 2)
 
+    def test_dynamodb_namespace(self):
+        argv = ['foo.j2', 'dynamodb', 'us-east-1']
+        templ, ns, region, filter_by, extras = plumbum.interpret_options(argv)
+        self.assertEqual(templ, 'foo.j2')
+        self.assertEqual(ns, 'dynamodb')
+        self.assertEqual(region, 'us-east-1')
 
 if __name__ == '__main__':
     unittest.main()
