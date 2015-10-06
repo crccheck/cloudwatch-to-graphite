@@ -1,15 +1,18 @@
 # -*- coding: UTF-8 -*-
 """
 Tests for Cloudwatch to Graphite (leadbutt)
+
+My class names are funny because I name them after the function they cover.
 """
 from __future__ import unicode_literals
 
 import unittest
+import mock
 
 import plumbum
 
 
-class get_cli_optionsTest(unittest.TestCase):
+class get_cli_optionsTests(unittest.TestCase):  # flake8: noqa
     def test_trivial_case(self):
         argv = []
         with self.assertRaises(IndexError):
@@ -71,12 +74,33 @@ class get_cli_optionsTest(unittest.TestCase):
         self.assertEqual(len(filter_by), 1)
         self.assertEqual(len(extras), 2)
 
+
     def test_dynamodb_namespace(self):
         argv = ['foo.j2', 'dynamodb', 'us-east-1']
         templ, ns, region, filter_by, extras = plumbum.interpret_options(argv)
         self.assertEqual(templ, 'foo.j2')
         self.assertEqual(ns, 'dynamodb')
         self.assertEqual(region, 'us-east-1')
+
+
+class ListXXXTests(unittest.TestCase):
+    @mock.patch('boto.elasticache.connect_to_region')
+    def test_list_elasticache_trivial_case(self, mock_boto):
+        clusters = plumbum.list_elasticache('moo', None)
+        self.assertEqual(clusters, [])
+
+        clusters = plumbum.list_elasticache('moo', {})
+        self.assertEqual(clusters, [])
+
+    @mock.patch('boto.dynamodb.connect_to_region')
+    def test_list_dynamodb_trivial_case(self, mock_boto):
+        mock_boto.return_value.list_tables.return_value = []
+        tables = plumbum.list_dynamodb('moo', None)
+        self.assertEqual(tables, [])
+
+        tables = plumbum.list_dynamodb('moo', {})
+        self.assertEqual(tables, [])
+
 
 if __name__ == '__main__':
     unittest.main()
