@@ -33,6 +33,7 @@ import re
 import sys
 
 import boto
+import boto.dynamodb
 import boto.ec2
 import boto.ec2.elb
 import boto.rds
@@ -73,7 +74,7 @@ def filter_key(filter_args):
 
 def lookup(instances, filter_by=None):
     if filter_by is not None:
-        return filter(filter_key(filter_by), instances)
+        return list(filter(filter_key(filter_by), instances))
     return instances
 
 
@@ -173,6 +174,7 @@ def list_dynamodb(region, filter_by_kwargs):
     conn = boto.dynamodb.connect_to_region(region)
     tables = conn.list_tables()
     return lookup(tables, filter_by=filter_by_kwargs)
+
 
 list_resources = {
     'ec2': list_ec2,
