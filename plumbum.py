@@ -170,6 +170,12 @@ def list_kinesis_applications(region, filter_by_kwargs):
         kinesis_streams[stream_name] = shard_ids
     return kinesis_streams
 
+def list_dynamodb(region, filter_by_kwargs):
+    """List all DynamoDB tables."""
+    conn = boto.dynamodb.connect_to_region(region)
+    tables = conn.list_tables()
+    return lookup(tables, filter_by=filter_by_kwargs)
+
 list_resources = {
     'ec2': list_ec2,
     'elb': list_elb,
@@ -178,6 +184,7 @@ list_resources = {
     'asg': list_autoscaling_group,
     'sqs': list_sqs,
     'kinesisapp': list_kinesis_applications,
+    'dynamodb': list_dynamodb
 }
 
 

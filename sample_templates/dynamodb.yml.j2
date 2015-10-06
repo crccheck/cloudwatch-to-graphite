@@ -1,0 +1,22 @@
+{%- set metrics = {'ConsumedReadCapacityUnits': {'stat': ['Minimum', 'Maximum', 'Sum', 'Average'], 'unit': 'Count'},
+                   'ConsumedWriteCapacityUnits': {'stat': ['Minimum', 'Maximum', 'Sum', 'Average'], 'unit': 'Count'},
+                   } -%}
+
+# If connecting to a different region other than default, set region
+Auth:
+  region: "{{ region }}"
+Metrics:
+{%- for table_name in resources %}
+  {%- for metric in metrics %}
+- Namespace: "AWS/DynamoDB"
+  MetricName: "{{ metric }}"
+  Statistics: "{{ metrics[metric]['stat'] }}"
+  Unit: "{{ metrics[metric]['unit'] }}"
+  Dimensions:
+    TableName: "{{ table_name }}"
+  Options:
+    Formatter: 'cloudwatch.%(Namespace)s.{{ stream_name}}.%(MetricName)s.%(statistic)s.%(Unit)s'
+    Period: 1
+  {% endfor %}
+{% endfor %}
+
