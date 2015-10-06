@@ -133,13 +133,10 @@ def list_rds(region, filter_by_kwargs):
 
 def list_elasticache(region, filter_by_kwargs):
     """List all ElastiCache Clusters."""
-    clusters = []
     conn = boto.elasticache.connect_to_region(region)
     req = conn.describe_cache_clusters()
     data = req["DescribeCacheClustersResponse"]["DescribeCacheClustersResult"]["CacheClusters"]
-    for cluster in data:
-        CacheClusterId = cluster["CacheClusterId"]
-        clusters.append(CacheClusterId)
+    clusters = [x['CacheClusterId'] for x in data]
     return clusters
 
 
@@ -169,6 +166,7 @@ def list_kinesis_applications(region, filter_by_kwargs):
             shard_ids.append(shard['ShardId'])
         kinesis_streams[stream_name] = shard_ids
     return kinesis_streams
+
 
 def list_dynamodb(region, filter_by_kwargs):
     """List all DynamoDB tables."""
@@ -205,7 +203,7 @@ def main():
     template = jinja2_env.get_template(os.path.basename(template))
 
     # insure a valid region is set
-    if not region in [r.name for r in boto.ec2.regions()]:
+    if region not in [r.name for r in boto.ec2.regions()]:
         raise ValueError("Invalid region:{0}".format(region))
 
     # should I be using ARNs?
