@@ -103,7 +103,9 @@ def output_results(results, metric, options):
             context['statistic'] = statistic
             # get and then sanitize metric name
             metric_name = (formatter % context).replace('/', '.').lower()
-            line = '{} {} {}\n'.format(
+            # copy the unit name from the result to the context
+            context['Unit'] = result['Unit']
+            line = '{0} {1} {2}\n'.format(
                 metric_name,
                 result[statistic],
                 timegm(result['Timestamp'].timetuple()),
@@ -133,6 +135,13 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
         end_time = datetime.datetime.utcnow()
         start_time = end_time - datetime.timedelta(
             seconds=period_local * count_local)
+        # if the unit is in the yaml config, send it and get only those.
+        # else don't send it, get all the available units, and in output_results,
+        # we'll loop over all the results and send all to graphite.
+        if 'Unit' in metric.keys():
+            unit = metric['Unit']
+        else:
+            unit = None
         results = conn.get_metric_statistics(
             period_local,  # minimum: 60
             start_time,
@@ -141,7 +150,7 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
             metric['Namespace'],  # AWS/ELB, AWS/EC2
             metric['Statistics'],  # Sum, Maximum
             dimensions=metric['Dimensions'],
-            unit=metric['Unit'],  # Count, Percent
+            unit=unit,
         )
         # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
         output_results(results, metric, options)
