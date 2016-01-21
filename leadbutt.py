@@ -142,18 +142,27 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
             unit = metric['Unit']
         else:
             unit = None
-        results = conn.get_metric_statistics(
-            period_local,  # minimum: 60
-            start_time,
-            end_time,
-            metric['MetricName'],  # RequestCount, CPUUtilization
-            metric['Namespace'],  # AWS/ELB, AWS/EC2
-            metric['Statistics'],  # Sum, Maximum
-            dimensions=metric['Dimensions'],
-            unit=unit,
-        )
-        # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
-        output_results(results, metric, options)
+        # make sure that if we get one metric name, we make it a list and loop over
+        # the one value
+        metric_names = metric['MetricName']
+        if not isinstance(metric['MetricName'], list):
+            metric_names = [metric['MetricName']]
+        for metric_name in metric_names:
+            # we need a copy of the metric dict with the MetricName swapped out
+            this_metric = metric.copy()
+            this_metric['MetricName'] = metric_name
+            results = conn.get_metric_statistics(
+                period_local,  # minimum: 60
+                start_time,
+                end_time,
+                metric_name,  # RequestCount, CPUUtilization
+                metric['Namespace'],  # AWS/ELB, AWS/EC2
+                metric['Statistics'],  # Sum, Maximum
+                dimensions=metric['Dimensions'],
+                unit=unit,
+            )
+            # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
+            output_results(results, this_metric, options)
 
 
 def main(*args, **kwargs):
