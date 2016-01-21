@@ -1,0 +1,29 @@
+Auth:
+  region: "{{ region }}"
+Metrics:
+{%- for rds in resources %}
+- Namespace: "AWS/RDS"
+    Dimensions:
+      DBInstanceIdentifier: "{{ rds.id }}"
+    MetricName:
+      - NetworkReceiveThroughput
+      - DiskQueueDepth
+      - ReadLatency
+      - CPUCreditUsage
+      - ReadThroughput
+      - WriteLatency
+      - CPUUtilization
+      - WriteIOPS
+      - FreeStorageSpace
+      - CPUCreditBalance
+      - FreeableMemory
+      - DatabaseConnections
+      - ReadIOPS
+      - NetworkTransmitThroughput
+      - SwapUsage
+      - WriteThroughput
+      - BinLogDiskUsage
+    Statistics:
+      - Average
+      - Maximum
+{% endfor %}
