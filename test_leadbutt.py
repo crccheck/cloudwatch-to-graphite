@@ -85,6 +85,7 @@ class output_resultsTest(unittest.TestCase):
     def test_default_formatter_used(self, mock_sysout):
         mock_results = [{
             'Timestamp': datetime.datetime.utcnow(),
+            'Unit': 'Count',
             'Sum': 1337.0,
         }]
         metric = {
@@ -107,6 +108,7 @@ class output_resultsTest(unittest.TestCase):
     def test_custom_formatter_used(self, mock_sysout):
         mock_results = [{
             'Timestamp': datetime.datetime.utcnow(),
+            'Unit': 'Count',
             'Sum': 1337.0,
         }]
         metric = {
@@ -132,6 +134,7 @@ class output_resultsTest(unittest.TestCase):
             'Timestamp': datetime.datetime.utcnow(),
             'Maximum': 9001.0,
             'Average': 1337.0,
+            'Unit': 'Count',
         }]
         metric = {
             'Namespace': 'AWS/Foo',
