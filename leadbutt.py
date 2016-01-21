@@ -101,10 +101,10 @@ def output_results(results, metric, options):
             stat_keys = [stat_keys]
         for statistic in stat_keys:
             context['statistic'] = statistic
-            # get and then sanitize metric name
-            metric_name = (formatter % context).replace('/', '.').lower()
-            # copy the unit name from the result to the context
+            # get and then sanitize metric name, first copy the unit name from the
+            # result to the context to keep the default format happy
             context['Unit'] = result['Unit']
+            metric_name = (formatter % context).replace('/', '.').lower()
             line = '{0} {1} {2}\n'.format(
                 metric_name,
                 result[statistic],
