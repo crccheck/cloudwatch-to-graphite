@@ -101,9 +101,11 @@ def output_results(results, metric, options):
             stat_keys = [stat_keys]
         for statistic in stat_keys:
             context['statistic'] = statistic
-            # get and then sanitize metric name
+            # get and then sanitize metric name, first copy the unit name from the
+            # result to the context to keep the default format happy
+            context['Unit'] = result['Unit']
             metric_name = (formatter % context).replace('/', '.').lower()
-            line = '{} {} {}\n'.format(
+            line = '{0} {1} {2}\n'.format(
                 metric_name,
                 result[statistic],
                 timegm(result['Timestamp'].timetuple()),
@@ -133,18 +135,34 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
         end_time = datetime.datetime.utcnow()
         start_time = end_time - datetime.timedelta(
             seconds=period_local * count_local)
-        results = conn.get_metric_statistics(
-            period_local,  # minimum: 60
-            start_time,
-            end_time,
-            metric['MetricName'],  # RequestCount, CPUUtilization
-            metric['Namespace'],  # AWS/ELB, AWS/EC2
-            metric['Statistics'],  # Sum, Maximum
-            dimensions=metric['Dimensions'],
-            unit=metric['Unit'],  # Count, Percent
-        )
-        # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
-        output_results(results, metric, options)
+        # if the unit is in the yaml config, send it and get only those.
+        # else don't send it, get all the available units, and in output_results,
+        # we'll loop over all the results and send all to graphite.
+        if 'Unit' in metric.keys():
+            unit = metric['Unit']
+        else:
+            unit = None
+        # make sure that if we get one metric name, we make it a list and loop over
+        # the one value
+        metric_names = metric['MetricName']
+        if not isinstance(metric['MetricName'], list):
+            metric_names = [metric['MetricName']]
+        for metric_name in metric_names:
+            # we need a copy of the metric dict with the MetricName swapped out
+            this_metric = metric.copy()
+            this_metric['MetricName'] = metric_name
+            results = conn.get_metric_statistics(
+                period_local,  # minimum: 60
+                start_time,
+                end_time,
+                metric_name,  # RequestCount, CPUUtilization
+                metric['Namespace'],  # AWS/ELB, AWS/EC2
+                metric['Statistics'],  # Sum, Maximum
+                dimensions=metric['Dimensions'],
+                unit=unit,
+            )
+            # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
+            output_results(results, this_metric, options)
 
 
 def main(*args, **kwargs):
