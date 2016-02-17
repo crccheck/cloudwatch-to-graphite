@@ -29,6 +29,7 @@ They're written in jinja2, and have these variables available:
 """
 from __future__ import unicode_literals
 
+import argparse
 import re
 import sys
 
@@ -44,7 +45,7 @@ import boto.sqs
 import jinja2
 import os.path
 
-__version__ = '0.8.1'
+__version__ = '0.9.0'
 
 # DEFAULT_NAMESPACE = 'ec2'  # TODO
 DEFAULT_REGION = 'us-east-1'
@@ -78,37 +79,26 @@ def lookup(instances, filter_by=None):
     return instances
 
 
-def interpret_options(options):
-    """Parse all the command line options."""
-    # template always has to be index 0
-    template = options[0]
-    # namespace always has to be index 1. Support 'ec2' (human friendly) and
-    # 'AWS/EC2' (how CloudWatch natively calls these things)
-    namespace = options[1].rsplit('/', 2)[-1].lower()
-    next_idx = 2
-    # region might be index 2
-    region = ''
-    if len(options) > 2 and re.match(r'^\w+\-[\w\-]+\-\d+$', options[2]):
-        region = options[2]
-        next_idx += 1
-    else:
-        next_idx = 2
-    region = region or boto.config.get('Boto', 'ec2_region_name', 'us-east-1')
+def interpret_options(args=sys.argv[1:]):
 
-    filter_by = {}
-    extras = []
-    for arg in options[next_idx:]:
-        if arg.startswith('-'):
-            # throw these away for now
-            extras.append(arg)
-        elif '=' in arg:
-            key, value = arg.split('=', 2)
-            filter_by[key] = value
-        else:
-            # throw these away for now
-            extras.append(arg)
+    if '--version' in args:
+        print(__version__)
+        sys.exit()
 
-    return template, namespace, region, filter_by, extras
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--region", help="AWS region", default=DEFAULT_REGION)
+    parser.add_argument("template", type=str,
+                        help="the template to interpret")
+    parser.add_argument("-n", "--namespace", help="AWS namespace", required=True)
+    parser.add_argument("-f", "--filter", help="filter to apply to AWS objects")
+
+    args = parser.parse_args(args=args)
+    if args.template is None:
+        sys.exit(127)
+
+    # Support 'ec2' (human friendly) and 'AWS/EC2' (how CloudWatch natively calls these things)
+    namespace = args.namespace.rsplit('/', 2)[-1].lower()
+    return args.template, namespace, args.region, args.filter
 
 
 def list_ec2(region, filter_by_kwargs):
@@ -189,14 +179,8 @@ list_resources = {
 
 
 def main():
-    if '--version' in sys.argv:
-        print(__version__)
-        sys.exit()
-    if len(sys.argv) < 3:
-        print(__doc__)
-        sys.exit()
 
-    template, namespace, region, filters, __ = interpret_options(sys.argv[1:])
+    template, namespace, region, filters = interpret_options()
 
     # get the template first so this can fail before making a network request
     fs_path = os.path.abspath(os.path.dirname(template))
