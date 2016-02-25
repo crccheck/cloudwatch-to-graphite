@@ -208,7 +208,7 @@ def main():
     if tokens is not None:
         for token_pair in tokens:
             if token_pair.count('=') != 1:
-                raise CliArgsException("token pair '{}' invalid, must contain exactly one '=' character.".format(token_pair))
+                raise CliArgsException("token pair '{0}' invalid, must contain exactly one '=' character.".format(token_pair))
             (key, value) = token_pair.split('=')
             template_tokens[key] = value
 
