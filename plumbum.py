@@ -69,7 +69,7 @@ def get_property_func(key):
 def filter_key(filter_args):
     def filter_instance(instance):
         return all([value == get_property_func(key)(instance)
-            for key, value in filter_args.items()])
+                    for key, value in filter_args.items()])
     return filter_instance
 
 
@@ -198,7 +198,7 @@ def main():
     # base tokens
     template_tokens = {
         'filters': filters,
-        'region': region,       # Use for Auth config section if needed
+        'region': region,  # Use for Auth config section if needed
         'resources': resources,
     }
     # add tokens passed as cli args:
@@ -207,7 +207,7 @@ def main():
             (key, value) = token_pair.split('=')
             template_tokens[key] = value
 
-    print(template.render( template_tokens))
+    print(template.render(template_tokens))
 
 
 if __name__ == '__main__':
