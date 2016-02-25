@@ -30,7 +30,6 @@ They're written in jinja2, and have these variables available:
 from __future__ import unicode_literals
 
 import argparse
-import re
 import sys
 
 import boto
@@ -51,6 +50,10 @@ __version__ = '0.9.0'
 DEFAULT_REGION = 'us-east-1'
 
 
+class CliArgsException(Exception):
+    pass
+
+
 def get_property_func(key):
     """
     Get the accessor function for an instance to look for `key`.
@@ -69,7 +72,7 @@ def get_property_func(key):
 def filter_key(filter_args):
     def filter_instance(instance):
         return all([value == get_property_func(key)(instance)
-            for key, value in filter_args.items()])
+                    for key, value in filter_args.items()])
     return filter_instance
 
 
@@ -81,24 +84,19 @@ def lookup(instances, filter_by=None):
 
 def interpret_options(args=sys.argv[1:]):
 
-    if '--version' in args:
-        print(__version__)
-        sys.exit()
-
     parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument("-r", "--region", help="AWS region", default=DEFAULT_REGION)
-    parser.add_argument("template", type=str,
-                        help="the template to interpret")
-    parser.add_argument("-n", "--namespace", help="AWS namespace", required=True)
     parser.add_argument("-f", "--filter", help="filter to apply to AWS objects")
+    parser.add_argument('--token', action='append', help='a key=value pair to use when populating templates')
+    parser.add_argument("namespace", type=str, help="AWS namespace")
+    parser.add_argument("template", type=str, help="the template to interpret")
 
     args = parser.parse_args(args=args)
-    if args.template is None:
-        sys.exit(127)
 
     # Support 'ec2' (human friendly) and 'AWS/EC2' (how CloudWatch natively calls these things)
     namespace = args.namespace.rsplit('/', 2)[-1].lower()
-    return args.template, namespace, args.region, args.filter
+    return args.template, namespace, args.region, args.filter, args.token
 
 
 def list_ec2(region, filter_by_kwargs):
@@ -180,7 +178,7 @@ list_resources = {
 
 def main():
 
-    template, namespace, region, filters = interpret_options()
+    template, namespace, region, filters, tokens = interpret_options()
 
     # get the template first so this can fail before making a network request
     fs_path = os.path.abspath(os.path.dirname(template))
@@ -200,11 +198,21 @@ def main():
               .format(namespace))
         sys.exit(1)
 
-    print(template.render({
+    # base tokens
+    template_tokens = {
         'filters': filters,
-        'region': region,       # Use for Auth config section if needed
+        'region': region,  # Use for Auth config section if needed
         'resources': resources,
-    }))
+    }
+    # add tokens passed as cli args:
+    if tokens is not None:
+        for token_pair in tokens:
+            if token_pair.count('=') != 1:
+                raise CliArgsException("token pair '{0}' invalid, must contain exactly one '=' character.".format(token_pair))
+            (key, value) = token_pair.split('=')
+            template_tokens[key] = value
+
+    print(template.render(template_tokens))
 
 
 if __name__ == '__main__':
