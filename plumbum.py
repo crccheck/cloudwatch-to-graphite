@@ -30,7 +30,6 @@ They're written in jinja2, and have these variables available:
 from __future__ import unicode_literals
 
 import argparse
-import re
 import sys
 
 import boto
