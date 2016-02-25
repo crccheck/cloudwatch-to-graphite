@@ -50,6 +50,10 @@ __version__ = '0.9.0'
 DEFAULT_REGION = 'us-east-1'
 
 
+class CliArgsException(Exception):
+    pass
+
+
 def get_property_func(key):
     """
     Get the accessor function for an instance to look for `key`.
@@ -203,6 +207,8 @@ def main():
     # add tokens passed as cli args:
     if tokens is not None:
         for token_pair in tokens:
+            if token_pair.count('=') != 1:
+                raise CliArgsException("token pair '{}' invalid, must contain exactly one '=' character.".format(token_pair))
             (key, value) = token_pair.split('=')
             template_tokens[key] = value
 
