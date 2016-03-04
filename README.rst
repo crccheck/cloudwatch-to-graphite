@@ -50,7 +50,7 @@ There's a helper to generate configuration files called ``plumbum``.  Use it lik
 
     plumbum [-r REGION] [-f FILTER] [--token TOKEN] namespace template
 
-Namespace will the CloudWatch namespace for the resources of interest; for example ``AWS/RDS``.
+Namespace is the CloudWatch namespace for the resources of interest; for example ``AWS/RDS``.
 The template is a Jinja2 template. You can add arbitrary replacement tokens, eg ``{{ replace_me }}``, and then
 pass in values on the CLI via ``--token``. For example, if you called::
 
