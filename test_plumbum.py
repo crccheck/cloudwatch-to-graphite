@@ -17,11 +17,13 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
     def test_all_args(self):
         args = [
             '-r', 'non-legal-region',
-            '-n', 'ec2',
+            'ec2',
             '-f', 'instance-type=c3.large',
             'foo.yaml.j2'
         ]
-        templ, ns, region, filter_by = plumbum.interpret_options(args)
+        templ, ns, region, filter_by, token = plumbum.interpret_options(args)
+        # args.template, namespace, args.region, args.filter, args.token
+
         self.assertEqual(region, 'non-legal-region')
         self.assertEqual(ns, 'ec2')
         self.assertEqual(templ, 'foo.yaml.j2')
@@ -29,10 +31,10 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
 
     def test_namespace_can_use_cloudwatch_syntax(self):
         args = [
-            '-n', 'AWS/EC2',
+            'AWS/EC2',
             'foo.yaml.j2'
         ]
-        templ, ns, region, filter_by = plumbum.interpret_options(args)
+        templ, ns, region, filter_by, token = plumbum.interpret_options(args)
         self.assertEqual(templ, 'foo.yaml.j2')
         self.assertEqual(ns, 'ec2')
 
@@ -43,10 +45,10 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
         we get the correct failure/exit.
         """
         args = [
-            '-n', 'ec2',
+            'ec2',
             '-f', 'instance-type=c3.large',
         ]
-        templ, ns, region, filter_by = plumbum.interpret_options(args)
+        templ, ns, region, filter_by, token = plumbum.interpret_options(args)
         self.assertEqual(templ, None)
         self.assertEqual(region, plumbum.DEFAULT_REGION)
         self.assertEqual(filter_by, 'instance-type=c3.large')
