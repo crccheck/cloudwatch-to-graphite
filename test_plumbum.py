@@ -22,7 +22,6 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
             'foo.yaml.j2'
         ]
         templ, ns, region, filter_by, token = plumbum.interpret_options(args)
-        # args.template, namespace, args.region, args.filter, args.token
 
         self.assertEqual(region, 'non-legal-region')
         self.assertEqual(ns, 'ec2')
