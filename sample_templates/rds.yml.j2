@@ -1,0 +1,41 @@
+{#- config template for RDS -#}
+
+{%- set metrics = {
+    'BinLogDiskUsage':              {'stat': 'Average', 'unit': 'Bytes'},
+    'CPUCreditUsage':               {'stat': 'Sum', 'unit': 'Count'},
+    'CPUCreditBalance':             {'stat': 'Sum', 'unit': 'Count'},
+    'CPUUtilization':               {'stat': 'Average', 'unit': 'Percent'},
+    'DatabaseConnections':          {'stat': 'Average', 'unit': 'Count'},
+    'DiskQueueDepth':               {'stat': 'Average', 'unit': 'Count'},
+    'FreeableMemory':               {'stat': 'Average', 'unit': 'Bytes'},
+    'FreeStorageSpace':             {'stat': 'Average', 'unit': 'Bytes'},
+    'ReplicaLag':                   {'stat': 'Average', 'unit': 'Seconds'},
+    'SwapUsage':                    {'stat': 'Average', 'unit': 'Bytes'},
+    'ReadIOPS':                     {'stat': 'Average', 'unit': 'Count/Second'},
+    'WriteIOPS':                    {'stat': 'Average', 'unit': 'Count/Second'},
+    'ReadLatency':                  {'stat': 'Average', 'unit': 'Seconds'},
+    'WriteLatency':                 {'stat': 'Average', 'unit': 'Seconds'},
+    'ReadThroughput':               {'stat': 'Average', 'unit': 'Bytes/Second'},
+    'WriteThroughput':              {'stat': 'Average', 'unit': 'Bytes/Second'},
+    'NetworkReceiveThroughput':     {'stat': 'Average', 'unit': 'Bytes/Second'},
+    'NetworkTransmitThroughput':    {'stat': 'Average', 'unit': 'Bytes/Second'},
+    }
+-%}
+
+Auth:
+  region: "{{ region }}"
+
+Metrics:
+{%- for rds in resources %}
+  {%- for metric in metrics %}
+- Namespace: "AWS/RDS"
+  MetricName: "{{ metric }}"
+  Statistics:
+  - "{{ metrics[metric]['stat'] }}"
+  Unit: "{{ metrics[metric]['unit'] }}"
+  Dimensions:
+    DBInstanceIdentifier: "{{ rds.id }}"
+  Options:
+    Formatter: 'cloudwatch.%(Namespace)s.{{ rds }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+  {%- endfor %}
+{%- endfor %}
