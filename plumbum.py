@@ -117,8 +117,9 @@ def list_billing(region, filter_by_kwargs):
     conn = boto.ec2.cloudwatch.connect_to_region(region)
     metrics = conn.list_metrics(metric_name='EstimatedCharges')
     if filter_by_kwargs:
-        
-        filtered_metrics = [x for x in metrics if x.dimensions.get('ServiceName') and x.dimensions.get(filter_by_kwargs.keys()[0])[0] == filter_by_kwargs.values()[0]]
+        filter_key = filter_by_kwargs.keys()[0]
+        filter_value = filter_by_kwargs.values()[0]
+        filtered_metrics = [x for x in metrics if x.dimensions.get('ServiceName') and x.dimensions.get(filter_key)[0] == filter_value]
     else:
         filtered_metrics = metrics
     return filtered_metrics
