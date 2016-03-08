@@ -1,17 +1,11 @@
-VERSION=0.8.1
+VERSION=0.9.0
 
 
-help:
-	@echo "help"
-	@echo "-------------------------------------------------------"
-	@echo "make help     this help"
-	@echo "make clean    remove temporary files"
-	@echo "make test     run test suite"
-	@echo "make install  install this package locally"
-	@echo "make release  prep a release and upload to PyPI"
+help: ## Shows this help
+	@echo "$$(grep -h '#\{2\}' $(MAKEFILE_LIST) | sed 's/: #\{2\} /	/' | column -t -s '	')"
 
 
-clean:
+clean: ## Remove temporary files
 	find . -name "*.pyc" -delete
 	find . -name ".DS_Store" -delete
 	rm -rf *.egg
@@ -20,7 +14,7 @@ clean:
 	rm -rf build
 	rm -rf dist
 
-test:
+test: ## Run test suite
 	python -m unittest discover
 
 version:
@@ -40,6 +34,6 @@ release: clean version
 	python setup.py sdist bdist_wheel upload
 
 # makes it easier to test setup.py's entry points
-install:
+install: ## Install this package locally
 	-pip uninstall cloudwatch-to-graphite --yes
 	pip install .
