@@ -46,8 +46,17 @@ the config file to '-'::
 
     generate_config_from_inventory | leadbutt --config-file=-
 
-There's a helper to generate configuration files called ``plumbum``. For now,
-you'll have to read the source of ``plumbum.py`` for usage.
+There's a helper to generate configuration files called ``plumbum``.  Use it like::
+
+    plumbum [-r REGION] [-f FILTER] [--token TOKEN] namespace template
+
+Namespace is the CloudWatch namespace for the resources of interest; for example ``AWS/RDS``.
+The template is a Jinja2 template. You can add arbitrary replacement tokens, eg ``{{ replace_me }}``, and then
+pass in values on the CLI via ``--token``. For example, if you called::
+
+    plumbum --token replace_me='hello, world' AWS/RDS sample_templates/rds.yml.j2
+
+You would get all instances of ``{{ replace_me }}`` in the templace replaced with ``hello, world``.
 
 
 Sending Data to Graphite
