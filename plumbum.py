@@ -119,7 +119,7 @@ def list_billing(region, filter_by_kwargs):
     if filter_by_kwargs:
         filter_key = filter_by_kwargs.keys()[0]
         filter_value = filter_by_kwargs.values()[0]
-        filtered_metrics = [x for x in metrics if x.dimensions.get('ServiceName') and x.dimensions.get(filter_key)[0] == filter_value]
+        filtered_metrics = [x for x in metrics if x.dimensions.get(filter_key) and x.dimensions.get(filter_key)[0] == filter_value]
     else:
         filtered_metrics = metrics
     return filtered_metrics
