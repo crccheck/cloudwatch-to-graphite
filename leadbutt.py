@@ -18,6 +18,8 @@ import datetime
 import os.path
 import sys
 
+from retrying import retry
+
 from docopt import docopt
 import boto.ec2.cloudwatch
 import yaml
@@ -113,6 +115,18 @@ def output_results(results, metric, options):
             sys.stdout.write(line)
 
 
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+def get_metric_statistics(**kwargs):
+    """
+    A thin wrapper around boto.cloudwatch.connection.get_metric_statistics, for the
+    purpose of adding the @retry decorator
+    :param kwargs:
+    :return:
+    """
+    connection = kwargs.pop('connection')
+    return connection.get_metric_statistics(**kwargs)
+
+
 def leadbutt(config_file, cli_options, verbose=False, **kwargs):
     config = get_config(config_file)
     config_options = config.get('Options')
@@ -144,17 +158,17 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
             # we need a copy of the metric dict with the MetricName swapped out
             this_metric = metric.copy()
             this_metric['MetricName'] = metric_name
-            results = conn.get_metric_statistics(
-                period_local,  # minimum: 60
-                start_time,
-                end_time,
-                metric_name,  # RequestCount, CPUUtilization
-                metric['Namespace'],  # AWS/ELB, AWS/EC2
-                metric['Statistics'],  # Sum, Maximum
+            results = get_metric_statistics(
+                connection=conn,
+                period=period_local,
+                start_time=start_time,
+                end_time=end_time,
+                metric_name=metric_name,
+                namespace=metric['Namespace'],
+                statistics=metric['Statistics'],
                 dimensions=metric['Dimensions'],
-                unit=unit,
+                unit=unit
             )
-            # sys.stderr.write('{} {}\n'.format(options['Count'], len(results)))
             output_results(results, this_metric, options)
 
 
