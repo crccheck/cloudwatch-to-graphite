@@ -36,6 +36,7 @@ import boto
 import boto.dynamodb
 import boto.ec2
 import boto.ec2.elb
+import boto.ec2.cloudwatch
 import boto.rds
 import boto.elasticache
 import boto.ec2.autoscale
@@ -109,6 +110,13 @@ def interpret_options(options):
             extras.append(arg)
 
     return template, namespace, region, filter_by, extras
+
+
+def list_billing(region, filter_by_kwargs):
+    """List available billing metrics"""
+    conn = boto.ec2.cloudwatch.connect_to_region(region)
+    metrics = conn.list_metrics(metric_name='EstimatedCharges')
+    return lookup(metrics, filter_by=filter_by_kwargs)
 
 
 def list_ec2(region, filter_by_kwargs):
@@ -187,7 +195,8 @@ list_resources = {
     'asg': list_autoscaling_group,
     'sqs': list_sqs,
     'kinesisapp': list_kinesis_applications,
-    'dynamodb': list_dynamodb
+    'dynamodb': list_dynamodb,
+    'billing': list_billing
 }
 
 
