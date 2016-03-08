@@ -8,7 +8,7 @@ Metrics:
 - Namespace: "AWS/Billing"
   MetricName: "{{ service.name }}"
   Statistics:
-  - "Average"
+  - "Maximum"
   Unit: None
   Dimensions:
   {%- if service.dimensions.has_key('ServiceName') %}
