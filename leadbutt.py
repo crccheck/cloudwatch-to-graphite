@@ -6,6 +6,8 @@ Usage:
 Options:
   -h --help                   Show this screen.
   -c FILE --config-file=FILE  Path to a YAML configuration file [default: config.yaml].
+  -i INTERVAL                 Interval, in ms, to wait between metric requests. Doubles as the backoff multiplier. [default: 50]
+  -m MAX_INTERVAL             The maximum interval time to back off to, in ms [default: 4000]
   -p INT --period INT         Period length, in minutes (default: 1)
   -n INT                      Number of data points to try to get (default: 5)
   -v                          Verbose
@@ -17,7 +19,7 @@ from calendar import timegm
 import datetime
 import os.path
 import sys
-
+import time
 from retrying import retry
 
 from docopt import docopt
@@ -115,19 +117,21 @@ def output_results(results, metric, options):
             sys.stdout.write(line)
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
-def get_metric_statistics(**kwargs):
-    """
-    A thin wrapper around boto.cloudwatch.connection.get_metric_statistics, for the
-    purpose of adding the @retry decorator
-    :param kwargs:
-    :return:
-    """
-    connection = kwargs.pop('connection')
-    return connection.get_metric_statistics(**kwargs)
-
-
 def leadbutt(config_file, cli_options, verbose=False, **kwargs):
+
+    # This function is defined in here so that the decorator can take CLI options, passed in from main()
+    @retry(wait_exponential_multiplier=kwargs.get('interval', None),
+           wait_exponential_max=kwargs.get('max_interval', None))
+    def get_metric_statistics(**kwargs):
+        """
+        A thin wrapper around boto.cloudwatch.connection.get_metric_statistics, for the
+        purpose of adding the @retry decorator
+        :param kwargs:
+        :return:
+        """
+        connection = kwargs.pop('connection')
+        return connection.get_metric_statistics(**kwargs)
+
     config = get_config(config_file)
     config_options = config.get('Options')
     auth_options = config.get('Auth', {})
@@ -170,6 +174,7 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
                 unit=unit
             )
             output_results(results, this_metric, options)
+            time.sleep(float(kwargs.get('interval', 0)) / 1000.0)
 
 
 def main(*args, **kwargs):
@@ -184,7 +189,7 @@ def main(*args, **kwargs):
         cli_options['Period'] = int(period)
     if count is not None:
         cli_options['Count'] = int(count)
-    leadbutt(config_file, cli_options, verbose, **options)
+    leadbutt(config_file, cli_options, verbose, interval=options.pop('-i'), max_interval=options.pop('-m'))
 
 
 if __name__ == '__main__':
