@@ -120,6 +120,7 @@ def output_results(results, metric, options):
 def leadbutt(config_file, cli_options, verbose=False, **kwargs):
 
     # This function is defined in here so that the decorator can take CLI options, passed in from main()
+    # we'll re-use the interval to sleep at the bottom of the loop that calls get_metric_statistics.
     @retry(wait_exponential_multiplier=kwargs.get('interval', None),
            wait_exponential_max=kwargs.get('max_interval', None))
     def get_metric_statistics(**kwargs):
