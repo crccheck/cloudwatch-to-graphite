@@ -33,7 +33,7 @@ if sys.version_info[0] >= 3:
 else:
     text_type = unicode
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 
 
 # configuration
