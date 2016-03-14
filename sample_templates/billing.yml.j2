@@ -1,0 +1,25 @@
+{#- config template for billing -#}
+
+Auth:
+  region: "{{ region }}"
+
+Metrics:
+{%- for service in resources %}
+- Namespace: "AWS/Billing"
+  MetricName: "{{ service.name }}"
+  Statistics:
+  - "Maximum"
+  Unit: None
+  Dimensions:
+  {%- if service.dimensions.has_key('ServiceName') %}
+    ServiceName:    "{{ service.dimensions.get('ServiceName')[0] }}"
+  {%- endif %}
+    Currency:       "{{ service.dimensions.get('Currency')[0] }}"
+  Options:
+  {%- if service.dimensions.has_key('ServiceName') %}
+    Formatter: 'cloudwatch.%(Namespace)s.{{ service.dimensions.get('ServiceName')[0] }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+  {%- else %}
+    Formatter: 'cloudwatch.%(Namespace)s.%(MetricName)s.%(statistic)s.%(Unit)s'
+  {%- endif %}
+    Period: 240
+{% endfor %}
