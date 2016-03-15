@@ -48,13 +48,13 @@ the config file to '-'::
 
 There's a helper to generate configuration files called ``plumbum``.  Use it like::
 
-    plumbum [-r REGION] [-f FILTER] [--token TOKEN] namespace template
+    plumbum [-r REGION] [-f FILTER] [--token TOKEN] template namespace
 
 Namespace is the CloudWatch namespace for the resources of interest; for example ``AWS/RDS``.
 The template is a Jinja2 template. You can add arbitrary replacement tokens, eg ``{{ replace_me }}``, and then
 pass in values on the CLI via ``--token``. For example, if you called::
 
-    plumbum --token replace_me='hello, world' AWS/RDS sample_templates/rds.yml.j2
+    plumbum --token replace_me='hello, world' sample_templates/rds.yml.j2 AWS/RDS
 
 You would get all instances of ``{{ replace_me }}`` in the templace replaced with ``hello, world``.
 
