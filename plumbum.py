@@ -90,8 +90,8 @@ def interpret_options(args=sys.argv[1:]):
     parser.add_argument("-r", "--region", help="AWS region", default=DEFAULT_REGION)
     parser.add_argument("-f", "--filter", help="filter to apply to AWS objects")
     parser.add_argument('--token', action='append', help='a key=value pair to use when populating templates')
-    parser.add_argument("namespace", type=str, help="AWS namespace")
     parser.add_argument("template", type=str, help="the template to interpret")
+    parser.add_argument("namespace", type=str, help="AWS namespace")
 
     args = parser.parse_args(args=args)
 
