@@ -26,9 +26,6 @@ from docopt import docopt
 import boto.ec2.cloudwatch
 import yaml
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
-
 
 # emulate six.text_type based on https://docs.python.org/3/howto/pyporting.html#str-unicode
 if sys.version_info[0] >= 3:
@@ -135,7 +132,6 @@ def leadbutt(config_file, cli_options, verbose=False, **kwargs):
         :param kwargs:
         :return:
         """
-        logging.debug('getting: %s', kwargs.get('metric_name'))
         connection = kwargs.pop('connection')
         return connection.get_metric_statistics(**kwargs)
 
@@ -196,7 +192,6 @@ def main(*args, **kwargs):
         cli_options['Period'] = period
     if count is not None:
         cli_options['Count'] = count
-    logging.debug('starting up')
     leadbutt(config_file, cli_options, verbose,
              interval=float(options.pop('-i')),
              max_interval=float(options.pop('-m'))
