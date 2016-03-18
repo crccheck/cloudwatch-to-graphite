@@ -44,7 +44,7 @@ import boto.sqs
 import jinja2
 import os.path
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
 # DEFAULT_NAMESPACE = 'ec2'  # TODO
 DEFAULT_REGION = 'us-east-1'
