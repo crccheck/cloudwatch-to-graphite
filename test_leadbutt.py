@@ -161,7 +161,7 @@ class leadbuttTest(unittest.TestCase):
                 'aws_secret_access_key': 'bar',
             }
         }
-        leadbutt.leadbutt('dummy_config_file', 'dummy_cli_options')
+        leadbutt.leadbutt('dummy_config_file', {'Count': 1, 'Period': 5})
         self.assertTrue(mock_connect.called)
         args, kwargs = mock_connect.call_args
         self.assertEqual(kwargs['aws_access_key_id'], 'foo')

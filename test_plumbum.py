@@ -26,7 +26,7 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
         self.assertEqual(region, 'non-legal-region')
         self.assertEqual(ns, 'ec2')
         self.assertEqual(templ, 'foo.yaml.j2')
-        self.assertEqual(filter_by, 'instance-type=c3.large')
+        self.assertEqual(filter_by, {u'instance-type': u'c3.large'})
 
     def test_namespace_can_use_cloudwatch_syntax(self):
         args = [
@@ -50,7 +50,7 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
         templ, ns, region, filter_by, token = plumbum.interpret_options(args)
         self.assertEqual(ns, None)
         self.assertEqual(region, plumbum.DEFAULT_REGION)
-        self.assertEqual(filter_by, 'instance-type=c3.large')
+        self.assertEqual(filter_by, {u'instance-type': u'c3.large'})
 
 
 class ListXXXTests(unittest.TestCase):
