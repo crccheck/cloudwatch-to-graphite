@@ -88,19 +88,26 @@ def interpret_options(args=sys.argv[1:]):
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument("-r", "--region", help="AWS region", default=DEFAULT_REGION)
-    parser.add_argument("-f", "--filter", help="filter to apply to AWS objects")
+    parser.add_argument("-f", "--filter", action='append', default=[],
+                        help="filter to apply to AWS objects in key=value form, can be used multiple times")
     parser.add_argument('--token', action='append', help='a key=value pair to use when populating templates')
     parser.add_argument("template", type=str, help="the template to interpret")
     parser.add_argument("namespace", type=str, help="AWS namespace")
 
     args = parser.parse_args(args=args)
 
+    # filters are passed in as list of key=values pairs, we need a dictionary to pass to lookup()
+    filters = dict()
+    for filter in args.filter:
+        (key, value) = filter.split('=')
+        filters[key] = value
+
     # Support 'ec2' (human friendly) and 'AWS/EC2' (how CloudWatch natively calls these things)
     if args.namespace is not None:  # Just making test pass, argparse will catch this missing.
         namespace = args.namespace.rsplit('/', 2)[-1].lower()
     else:
         namespace = None
-    return args.template, namespace, args.region, args.filter, args.token
+    return args.template, namespace, args.region, filters, args.token
 
 
 def list_billing(region, filter_by_kwargs):
