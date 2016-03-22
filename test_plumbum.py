@@ -53,6 +53,33 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
         self.assertEqual(filter_by, {u'instance-type': u'c3.large'})
 
 
+class FilterTests(unittest.TestCase):
+
+    # define 2 mock ec2 instances to test filters with
+    instances= [mock.Mock(
+        root_device_type=u'ebs',
+        id=u'i-12345678',
+        private_ip_address='10.4.3.2',
+    ), mock.Mock(
+        root_device_type=u'ebs',
+        id=u'i-87654321',
+        private_ip_address='10.5.4.3',
+    )]
+
+    # verify that you get the instance back from the filter
+    def test_filter_hit(self):
+        filter_args = {'root_device_type': 'ebs', 'private_ip_address': '10.4.3.2'}
+        filtered_instances = plumbum.lookup(self.instances, filter_by=filter_args)
+        self.assertEqual(1, len(filtered_instances))
+        self.assertEqual(self.instances[0].id, filtered_instances[0].id)
+
+    # verify that you *do not* get the instance back from the filter
+    def test_filter_miss(self):
+        filter_args = {'root_device_type': 'instance-store'}
+        filtered_instances = plumbum.lookup(self.instances, filter_by=filter_args)
+        self.assertEquals(0, len(filtered_instances))
+
+
 class ListXXXTests(unittest.TestCase):
     @mock.patch('boto.elasticache.connect_to_region')
     def test_list_elasticache_trivial_case(self, mock_boto):
