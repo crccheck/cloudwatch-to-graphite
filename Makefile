@@ -1,4 +1,4 @@
-VERSION=0.9.0
+VERSION=0.9.3
 
 
 help: ## Shows this help

@@ -167,7 +167,19 @@ def list_dynamodb(region, filter_by_kwargs):
     return lookup(tables, filter_by=filter_by_kwargs)
 
 
+def list_beanstalk(region, environment_name_args):
+    # args are named differently here as the use case is that we want attributes for exactly one environment
+    region_info = boto.regioninfo.RegionInfo(None, region, 'elasticbeanstalk.{}.amazonaws.com'.format(region))
+    eb_conn = boto.connect_beanstalk(
+        region=region_info,
+    )
+    environments = eb_conn.describe_environment_resources(**environment_name_args)
+    resources = environments['DescribeEnvironmentResourcesResponse']['DescribeEnvironmentResourcesResult']['EnvironmentResources']
+    return resources
+
+
 list_resources = {
+    'beanstalk': list_beanstalk,
     'ec2': list_ec2,
     'elb': list_elb,
     'rds': list_rds,
