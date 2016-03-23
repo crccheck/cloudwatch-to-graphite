@@ -20,10 +20,10 @@ import datetime
 import os.path
 import sys
 import time
-from retrying import retry
 
 from docopt import docopt
 import boto.ec2.cloudwatch
+from retrying import retry
 import yaml
 
 
