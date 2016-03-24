@@ -20,10 +20,10 @@ import datetime
 import os.path
 import sys
 import time
-from retrying import retry
 
 from docopt import docopt
 import boto.ec2.cloudwatch
+from retrying import retry
 import yaml
 
 
@@ -33,7 +33,7 @@ if sys.version_info[0] >= 3:
 else:
     text_type = unicode
 
-__version__ = '0.9.2'
+__version__ = '0.9.4'
 
 
 # configuration
