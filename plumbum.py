@@ -86,7 +86,7 @@ def lookup(instances, filter_by=None):
 def interpret_options(args=sys.argv[1:]):
 
     parser = argparse.ArgumentParser()
-    parser0.9.4add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument("-r", "--region", help="AWS region", default=DEFAULT_REGION)
     parser.add_argument("-f", "--filter", help="filter to apply to AWS objects")
     parser.add_argument('--token', action='append', help='a key=value pair to use when populating templates')
