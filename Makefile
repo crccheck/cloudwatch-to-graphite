@@ -1,5 +1,6 @@
 VERSION = $(shell cat VERSION)
 ifeq ($(shell uname), Darwin)
+	# Get this with: `brew install gnu-sed`
 	SED = gsed
 else
 	SED = sed
@@ -21,6 +22,7 @@ clean: ## Remove temporary files
 test: ## Run test suite
 	python -m unittest discover
 
+.PHONY: version
 version:
 	@$(SED) -i -r /version/s/[0-9.]+/$(VERSION)/ setup.py
 	@$(SED) -i -r /__version__/s/[0-9.]+/$(VERSION)/ leadbutt.py
