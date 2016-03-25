@@ -1,5 +1,9 @@
 VERSION=0.9.4
-
+ifeq ($(shell uname), Darwin)
+	SED = gsed
+else
+	SED = sed
+endif
 
 help: ## Shows this help
 	@echo "$$(grep -h '#\{2\}' $(MAKEFILE_LIST) | sed 's/: #\{2\} /	/' | column -t -s '	')"
@@ -18,9 +22,9 @@ test: ## Run test suite
 	python -m unittest discover
 
 version:
-	@sed -i -r /version/s/[0-9.]+/$(VERSION)/ setup.py
-	@sed -i -r /__version__/s/[0-9.]+/$(VERSION)/ leadbutt.py
-	@sed -i -r /__version__/s/[0-9.]+/$(VERSION)/ plumbum.py
+	@$(SED) -i -r /version/s/[0-9.]+/$(VERSION)/ setup.py
+	@$(SED) -i -r /__version__/s/[0-9.]+/$(VERSION)/ leadbutt.py
+	@$(SED) -i -r /__version__/s/[0-9.]+/$(VERSION)/ plumbum.py
 
 # Release instructions
 # 1. bump VERSION above
