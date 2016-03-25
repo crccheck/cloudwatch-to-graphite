@@ -1,4 +1,4 @@
-VERSION=0.9.4
+VERSION = $(shell cat VERSION)
 ifeq ($(shell uname), Darwin)
 	SED = gsed
 else
@@ -24,7 +24,6 @@ test: ## Run test suite
 version:
 	@$(SED) -i -r /version/s/[0-9.]+/$(VERSION)/ setup.py
 	@$(SED) -i -r /__version__/s/[0-9.]+/$(VERSION)/ leadbutt.py
-	@$(SED) -i -r /__version__/s/[0-9.]+/$(VERSION)/ plumbum.py
 
 # Release instructions
 # 1. bump VERSION above
