@@ -97,10 +97,7 @@ def interpret_options(args=sys.argv[1:]):
     args = parser.parse_args(args=args)
 
     # filters are passed in as list of key=values pairs, we need a dictionary to pass to lookup()
-    filters = dict()
-    for filter in args.filter:
-        (key, value) = filter.split('=')
-        filters[key] = value
+    filters = dict([x.split('=', 1) for x in args.filter])
 
     # Support 'ec2' (human friendly) and 'AWS/EC2' (how CloudWatch natively calls these things)
     if args.namespace is not None:  # Just making test pass, argparse will catch this missing.
