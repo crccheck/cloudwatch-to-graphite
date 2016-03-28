@@ -26,7 +26,7 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
         self.assertEqual(region, 'non-legal-region')
         self.assertEqual(ns, 'ec2')
         self.assertEqual(templ, 'foo.yaml.j2')
-        self.assertEqual(filter_by, 'instance-type=c3.large')
+        self.assertEqual(filter_by, {u'instance-type': u'c3.large'})
 
     def test_namespace_can_use_cloudwatch_syntax(self):
         args = [
@@ -50,7 +50,34 @@ class GetCLIOptionsTests(unittest.TestCase):  # flake8: noqa
         templ, ns, region, filter_by, token = plumbum.interpret_options(args)
         self.assertEqual(ns, None)
         self.assertEqual(region, plumbum.DEFAULT_REGION)
-        self.assertEqual(filter_by, 'instance-type=c3.large')
+        self.assertEqual(filter_by, {u'instance-type': u'c3.large'})
+
+
+class FilterTests(unittest.TestCase):
+
+    # define 2 mock ec2 instances to test filters with
+    instances= [mock.Mock(
+        root_device_type=u'ebs',
+        id=u'i-12345678',
+        private_ip_address='10.4.3.2',
+    ), mock.Mock(
+        root_device_type=u'ebs',
+        id=u'i-87654321',
+        private_ip_address='10.5.4.3',
+    )]
+
+    # verify that you get the instance back from the filter
+    def test_filter_hit(self):
+        filter_args = {'root_device_type': 'ebs', 'private_ip_address': '10.4.3.2'}
+        filtered_instances = plumbum.lookup(self.instances, filter_by=filter_args)
+        self.assertEqual(1, len(filtered_instances))
+        self.assertEqual(self.instances[0].id, filtered_instances[0].id)
+
+    # verify that you *do not* get the instance back from the filter
+    def test_filter_miss(self):
+        filter_args = {'root_device_type': 'instance-store'}
+        filtered_instances = plumbum.lookup(self.instances, filter_by=filter_args)
+        self.assertEquals(0, len(filtered_instances))
 
 
 class ListXXXTests(unittest.TestCase):
