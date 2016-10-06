@@ -1,19 +1,37 @@
+{#- config template for ELB -#}
+
+{%- set metrics = {
+    'BackendConnectionErrors':              {'stat': 'Average', 'unit': 'Count'},
+    'HTTPCode_Backend_2XX':                 {'stat': 'Sum', 'unit': 'Count'},
+    'HTTPCode_Backend_3XX':                 {'stat': 'Sum', 'unit': 'Count'},
+    'HTTPCode_Backend_4XX':                 {'stat': 'Sum', 'unit': 'Count'},
+    'HTTPCode_Backend_5XX':                 {'stat': 'Sum', 'unit': 'Count'},
+    'HealthyHostCount':                     {'stat': 'Average', 'unit': 'Count'},
+    'Latency':                              {'stat': 'Average', 'unit': 'Seconds'},
+    'RequestCount':                         {'stat': 'Sum', 'unit': 'Count'},
+    'UnHealthyHostCount':                   {'stat': 'Average', 'unit': 'Count'},
+    'HTTPCode_ELB_4XX':                     {'stat': 'Sum', 'unit': 'Count'},
+    'HTTPCode_ELB_5XX':                     {'stat': 'Sum', 'unit': 'Count'},
+    'SurgeQueueLength':                     {'stat': 'Maximum', 'unit': 'Count'},
+    'SpilloverCount':                       {'stat': 'Sum', 'unit': 'Count'},
+    }
+-%}
+
+Auth:
+  region: "{{ region }}"
+
 Metrics:
 {%- for elb in resources %}
+  {%- for metric in metrics %}
 - Namespace: "AWS/ELB"
-  MetricName: "RequestCount"
-  Statistics: "Sum"
-  Unit: "Count"
-  Dimensions:
-    LoadBalancerName: "{{ elb.name }}"
-- Namespace: "AWS/ELB"
-  MetricName: "HTTPCode_Backend_5XX"
-  Statistics: "Sum"
-  Unit: "Count"
+  MetricName: "{{ metric }}"
+  Statistics:
+  - "{{ metrics[metric]['stat'] }}"
+  Unit: "{{ metrics[metric]['unit'] }}"
   Dimensions:
     LoadBalancerName: "{{ elb.name }}"
   Options:
-    Period: 5
-{% endfor %}
-Auth:
-  region: "{{ region }}"
+    Formatter: 'cloudwatch.%(Namespace)s.{{ elb.name }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+  {%- endfor %}
+{%- endfor %}
+
