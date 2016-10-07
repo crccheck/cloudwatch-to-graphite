@@ -36,6 +36,6 @@ Metrics:
   Dimensions:
     DBInstanceIdentifier: "{{ rds.id }}"
   Options:
-    Formatter: 'cloudwatch.%(Namespace)s.{{ rds }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+    Formatter: 'cloudwatch.%(Namespace)s.{{ rds.id }}.%(MetricName)s.%(statistic)s.%(Unit)s'
   {%- endfor %}
 {%- endfor %}
