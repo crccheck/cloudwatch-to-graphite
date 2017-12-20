@@ -1,0 +1,32 @@
+{#- config template for CloudFront -#}
+{#- http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cf-metricscollected.html -#}
+
+{%- set metrics = {
+    'Requests':        {'stat': 'Sum'},
+    'BytesDownloaded': {'stat': 'Sum'},
+    'BytesUploaded':   {'stat': 'Sum'},
+    'TotalErrorRate':  {'stat': 'Average'},
+    '4xxErrorRate':    {'stat': 'Average'},
+    '5xxErrorRate':    {'stat': 'Average'},
+    }
+-%}
+
+Auth:
+  region: "{{ region }}"
+
+Metrics:
+{%- for distribution in resources %}
+  {%- for metric in metrics %}
+- Namespace: "AWS/CloudFront"
+  MetricName: "{{ metric }}"
+  Statistics:
+    - "{{ metrics[metric]['stat'] }}"
+  Dimensions:
+    DistributionId: "{{ distribution.id }}"
+    Region: "Global"
+  Options:
+    Count: 60
+    Period: 1440
+    Formatter: 'cloudwatch.%(Namespace)s.{{ distribution.id }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+  {% endfor %}
+{% endfor %}

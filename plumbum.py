@@ -126,6 +126,13 @@ def list_billing(region, filter_by_kwargs):
     return filtered_metrics
 
 
+def list_cloudfront(region, filter_by_kwargs):
+    """List running ec2 instances."""
+    conn = boto.connect_cloudfront()
+    instances = conn.get_all_distributions()
+    return lookup(instances, filter_by=filter_by_kwargs)
+
+
 def list_ec2(region, filter_by_kwargs):
     """List running ec2 instances."""
     conn = boto.ec2.connect_to_region(region)
@@ -201,6 +208,7 @@ def list_dynamodb(region, filter_by_kwargs):
 
 
 list_resources = {
+    'cloudfront': list_cloudfront,
     'ec2': list_ec2,
     'ebs': list_ebs,
     'elb': list_elb,
