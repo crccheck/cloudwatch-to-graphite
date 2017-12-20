@@ -1,0 +1,56 @@
+# This is an example template file for getting metrics for EMR.
+
+{%- set metrics= { 'AppsCompleted': {'stat': 'Average', 'unit': 'Count'},
+                  'AppsFailed': {'stat': 'Average', 'unit': 'Count'},
+                  'AppsKilled': {'stat': 'Average', 'unit': 'Count'},
+                  'AppsPending': {'stat': 'Average', 'unit': 'Count'},
+                  'AppsRunning': {'stat': 'Average', 'unit': 'Count'},
+                  'AppsSubmitted': {'stat': 'Average', 'unit': 'Count'},
+                  'CapacityRemainingGB': {'stat': 'Average', 'unit': 'Count'},
+                  'ContainerAllocated': {'stat': 'Average', 'unit': 'Count'},
+                  'ContainerPending': {'stat': 'Average', 'unit': 'Count'},
+                  'ContainerReserved': {'stat': 'Average', 'unit': 'Count'},
+                  'CoreNodesPending': {'stat': 'Average', 'unit': 'Count'},
+                  'CoreNodesRunning': {'stat': 'Average', 'unit': 'Count'},
+                  'CorruptBlocks': {'stat': 'Average', 'unit': 'Count'},
+                  'HDFSCountRead': {'stat': 'Average', 'unit': 'Count'},
+                  'HDFSCountWritten': {'stat': 'Average', 'unit': 'Count'},
+                  'IsIdle': {'stat': 'Average', 'unit': 'None'},
+                  'MRActiveNodes': {'stat': 'Average', 'unit': 'Count'},
+                  'MRDecommissionedNodes': {'stat': 'Average', 'unit': 'Count'},
+                  'MRLostNodes': {'stat': 'Average', 'unit': 'Count'},
+                  'MRRebootedNodes': {'stat': 'Average', 'unit': 'Count'},
+                  'MRTotalNodes': {'stat': 'Average', 'unit': 'Count'},
+                  'MRUnhealthyNodes': {'stat': 'Average', 'unit': 'Count'},
+                  'MissingBlocks': {'stat': 'Average', 'unit': 'Count'},
+                  'PendingDeletionBlocks': {'stat': 'Average', 'unit': 'Count'},
+                  'S3CountRead': {'stat': 'Average', 'unit': 'Count'},
+                  'S3CountWritten': {'stat': 'Average', 'unit': 'Count'},
+                  'TotalLoad': {'stat': 'Average', 'unit': 'Count'},
+                  'UnderReplicatedBlocks': {'stat': 'Average', 'unit': 'Count'},
+                  'MemoryAllocatedMB': {'stat': 'Average', 'unit': 'Count'},
+                  'MemoryAvailableMB': {'stat': 'Average', 'unit': 'Count'},
+                  'MemoryReservedMB': {'stat': 'Average', 'unit': 'Count'},
+                  'MemoryTotalMB': {'stat': 'Average', 'unit': 'Count'},
+                  'LiveDataNodes': {'stat': 'Average', 'unit': 'Percent'},
+                  'HDFSUtilization': {'stat': 'Average', 'unit': 'Percent'} 
+                  } -%}
+
+Auth:
+  region: "{{ region }}"
+Metrics:
+{%- for emr in resources %}
+  {%- for metric in metrics %}
+- Namespace: "AWS/ElasticMapReduce"
+  MetricName: "{{ metric }}"
+  Statistics: "{{ metrics[metric]['stat'] }}"
+  Unit: "{{ metrics[metric]['unit'] }}"
+  Dimensions:
+    JobFlowId: {{ emr.id }}
+  {% endfor %}
+{% endfor %}
+
+Options:
+  Count: 1
+  Period: 5
+  Formatter: 'cloudwatch.%(Namespace)s.{{ region }}.%(dimension)s.%(MetricName)s.%(statistic)s.%(Unit)s'
