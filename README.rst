@@ -116,18 +116,7 @@ config.yaml.example for an idea of what you can do.
 Developing
 ----------
 
-Install requirements::
-
-    pip install -r requirements.txt
-
-Running test suite::
-
-    make test
-
-Verifying tests run over all supported Python versions::
-
-    tox
-
+See: : `Contributing <CONTRIBUTING.rst\_>`__.
 
 Useful References
 -----------------
