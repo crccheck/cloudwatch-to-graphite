@@ -1,0 +1,26 @@
+{%- set metrics = {
+    'VolumeReadOps':               {'stat': 'Sum', 'unit': 'Count'},
+    'VolumeWriteOps':              {'stat': 'Sum', 'unit': 'Count'},
+    'VolumeQueueLength':           {'stat': 'Sum', 'unit': 'Count'},
+    'BurstBalance':                {'stat': 'Average', 'unit': 'Percent'},
+    }
+-%}
+
+Auth:
+  region: "{{ region }}"
+
+Metrics:
+{%- for instance in resources %}
+  {%- for metric in metrics %}
+- Namespace: "AWS/EBS"
+  MetricName: "{{ metric }}"
+  Statistics:
+  - "{{ metrics[metric]['stat'] }}"
+  Unit: "{{ metrics[metric]['unit'] }}"
+  Dimensions:
+    VolumeId: "{{ instance.id }}"
+  Options:
+    Formatter: 'cloudwatch.%(Namespace)s.{{ instance.attach_data.instance_id }}.%(MetricName)s.%(statistic)s.%(Unit)s'
+    Period: 1
+  {%- endfor %}
+{%- endfor %}
