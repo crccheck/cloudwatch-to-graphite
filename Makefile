@@ -28,7 +28,7 @@ version:
 	@$(SED) -i -r /__version__/s/[0-9.]+/$(VERSION)/ leadbutt.py
 
 # Release instructions
-# 1. bump VERSION above
+# 1. bump VERSION file
 # 2. run `make release`
 # 3. `git push --tags origin master`
 # 4. update release notes
