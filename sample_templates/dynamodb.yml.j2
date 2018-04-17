@@ -10,7 +10,7 @@ Metrics:
   {%- for metric in metrics %}
 - Namespace: "AWS/DynamoDB"
   MetricName: "{{ metric }}"
-  Statistics: "{{ metrics[metric]['stat'] }}"
+  Statistics: {{ metrics[metric]['stat'] }}
   Unit: "{{ metrics[metric]['unit'] }}"
   Dimensions:
     TableName: "{{ table_name }}"
