@@ -15,7 +15,7 @@ Metrics:
   Dimensions:
     TableName: "{{ table_name }}"
   Options:
-    Formatter: 'cloudwatch.%(Namespace)s.{{ stream_name}}.%(MetricName)s.%(statistic)s.%(Unit)s'
+    Formatter: 'cloudwatch.%(Namespace)s.{{ table_name }}.%(MetricName)s.%(statistic)s.%(Unit)s'
     Period: 1
   {% endfor %}
 {% endfor %}
