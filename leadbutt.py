@@ -52,7 +52,7 @@ def get_config(config_file):
     """Get configuration from a file."""
     def load(fp):
         try:
-            return yaml.load(fp)
+            return yaml.safe_load(fp)
         except yaml.YAMLError as e:
             sys.stderr.write(text_type(e))
             sys.exit(1)  # TODO document exit codes

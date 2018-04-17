@@ -77,7 +77,7 @@ class FilterTests(unittest.TestCase):
     def test_filter_miss(self):
         filter_args = {'root_device_type': 'instance-store'}
         filtered_instances = plumbum.lookup(self.instances, filter_by=filter_args)
-        self.assertEquals(0, len(filtered_instances))
+        self.assertEqual(len(filtered_instances), 0)
 
 
 class ListXXXTests(unittest.TestCase):
